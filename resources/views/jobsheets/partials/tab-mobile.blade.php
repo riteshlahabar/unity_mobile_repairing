@@ -49,7 +49,7 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label">Color</label>
+                    <label class="form-label">Color <span class="text-danger">*</span></label>
                     <div class="btn-group w-100">
                         <button type="button" class="btn btn-outline-primary dropdown-toggle text-start" data-bs-toggle="dropdown">
                             Select Color <i class="las la-angle-down float-end"></i>
@@ -62,13 +62,13 @@
                             <a class="dropdown-item" href="#" onclick="selectOption(event, 'color', 'Silver')">Silver</a>
                         </div>
                     </div>
-                    <input type="hidden" id="color" name="color">
+                    <input type="hidden" id="color" name="color" required>
                 </div>
             </div>
 
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label class="form-label">Series</label>
+                    <label class="form-label">Series <span class="text-danger">*</span></label>
                     <div class="btn-group w-100">
                         <button type="button" class="btn btn-outline-primary dropdown-toggle text-start" data-bs-toggle="dropdown">
                             Select Series <i class="las la-angle-down float-end"></i>
@@ -80,7 +80,7 @@
                             <a class="dropdown-item" href="#" onclick="selectOption(event, 'series', '512GB')">512GB</a>
                         </div>
                     </div>
-                    <input type="hidden" id="series" name="series">
+                    <input type="hidden" id="series" name="series" required>
                 </div>
             </div>
         </div>
@@ -88,14 +88,14 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="mb-3">
-                    <label for="imei" class="form-label">IMEI Number <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" id="imei" name="imei" placeholder="Enter IMEI number" maxlength="15" required>
+                    <label for="imei" class="form-label">IMEI Number <small class="text-muted">(Optional)</small></label>
+                    <input type="text" class="form-control" id="imei" name="imei" placeholder="Enter IMEI number" maxlength="15">
                 </div>
             </div>
         </div>
     </fieldset>
 
     <div class="mt-3">
-        <button type="button" class="btn btn-primary float-end" onclick="nextTab('problem-tab')">Next</button>
+        <button type="button" class="btn btn-primary float-end" id="mobileNextBtn" onclick="nextTab('problem-tab')" disabled>Next</button>
     </div>
 </div>

@@ -99,6 +99,7 @@
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
                                                 <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
+                                                <a class="dropdown-item" href="#" onclick="downloadPDF('JS0001')"><i class="las la-file-pdf me-2"></i>Download PDF</a>
                                                 <a class="dropdown-item" href="#" onclick="printLabel('JS0001', 'John Doe')"><i class="las la-tag me-2"></i>Print Label</a>
                                                 <a class="dropdown-item" href="#" onclick="printJobsheet('JS0001')"><i class="las la-print me-2"></i>Print JobSheet</a>
                                                 <div class="dropdown-divider"></div>
@@ -152,6 +153,7 @@
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
                                                 <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
+                                                <a class="dropdown-item" href="#" onclick="downloadPDF('JS0002')"><i class="las la-file-pdf me-2"></i>Download PDF</a>
                                                 <a class="dropdown-item" href="#" onclick="printLabel('JS0002', 'Sarah Williams')"><i class="las la-tag me-2"></i>Print Label</a>
                                                 <a class="dropdown-item" href="#" onclick="printJobsheet('JS0002')"><i class="las la-print me-2"></i>Print JobSheet</a>
                                                 <div class="dropdown-divider"></div>
@@ -205,6 +207,7 @@
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
                                                 <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
+                                                <a class="dropdown-item" href="#" onclick="downloadPDF('JS0003')"><i class="las la-file-pdf me-2"></i>Download PDF</a>
                                                 <a class="dropdown-item" href="#" onclick="printLabel('JS0003', 'Michael Brown')"><i class="las la-tag me-2"></i>Print Label</a>
                                                 <a class="dropdown-item" href="#" onclick="printJobsheet('JS0003')"><i class="las la-print me-2"></i>Print JobSheet</a>
                                                 <div class="dropdown-divider"></div>
@@ -258,6 +261,7 @@
                                             <div class="dropdown-menu dropdown-menu-end">
                                                 <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
                                                 <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
+                                                <a class="dropdown-item" href="#" onclick="downloadPDF('JS0004')"><i class="las la-file-pdf me-2"></i>Download PDF</a>
                                                 <a class="dropdown-item" href="#" onclick="printLabel('JS0004', 'Emma Davis')"><i class="las la-tag me-2"></i>Print Label</a>
                                                 <a class="dropdown-item" href="#" onclick="printJobsheet('JS0004')"><i class="las la-print me-2"></i>Print JobSheet</a>
                                                 <div class="dropdown-divider"></div>
@@ -300,6 +304,13 @@
 </div>
 
 <script>
+// Download PDF Function
+function downloadPDF(jobsheetId) {
+    // You can replace this with your actual PDF generation/download logic
+    alert('Downloading PDF for ' + jobsheetId);
+    // Example: window.location.href = `/jobsheets/${jobsheetId}/pdf`;
+}
+
 // Print Label Function
 function printLabel(jobsheetId, customerName) {
     const printWindow = window.open('', '', 'width=400,height=300');

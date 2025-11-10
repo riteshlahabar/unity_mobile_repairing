@@ -108,10 +108,7 @@
             <div class="modal-footer justify-content-center">
                 <a href="{{ route('jobsheets.create') }}" class="btn btn-primary">
                     <i class="iconoir-plus-circle me-1"></i>Create JobSheet
-                </a>
-                <a href="{{ route('customers.index') }}" class="btn btn-success">
-                    <i class="iconoir-list me-1"></i>View Customer List
-                </a>
+                </a>                
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
         </div>

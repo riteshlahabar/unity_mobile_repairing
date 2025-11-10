@@ -13,6 +13,18 @@ document.getElementById('jobsheet-wizard').addEventListener('submit', function(e
     successModal.show();
 });
 
+// Close Modal and Redirect to JobSheet List
+function closeModalAndRedirect() {
+    const successModal = bootstrap.Modal.getInstance(document.getElementById('successModal'));
+    successModal.hide();
+    
+    // Redirect to jobsheet list page after modal is closed
+    setTimeout(() => {
+        window.location.href = "{{ route('jobsheets.index') }}";
+    }, 300); // Small delay to allow modal close animation
+}
+
+// Print Label Function (Popup remains open)
 function printLabel() {
     const customerName = document.getElementById('success_customer_name').textContent;
     const jobsheetId = document.getElementById('success_jobsheet_id').textContent;
@@ -43,19 +55,26 @@ function printLabel() {
     
     printWindow.document.close();
     printWindow.focus();
-    setTimeout(() => { printWindow.print(); printWindow.close(); }, 250);
+    
+    setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+    }, 250);
+    
     alert('Label printed successfully!');
 }
 
+// Print JobSheet Function (Redirects after print)
 function printJobsheet() {
     const customerName = document.getElementById('success_customer_name').textContent;
     const jobsheetId = document.getElementById('success_jobsheet_id').textContent;
-    const company = document.getElementById('company').value;
-    const model = document.getElementById('model').value;
-    const problem = document.getElementById('problem_description').value;
-    const estimatedCost = document.getElementById('estimated_cost').value;
-    const advance = document.getElementById('advance').value;
-    const balance = document.getElementById('balance').value;
+    
+    const company = document.getElementById('company')?.value || '';
+    const model = document.getElementById('model')?.value || '';
+    const problem = document.getElementById('problem_description')?.value || '';
+    const estimatedCost = document.getElementById('estimated_cost')?.value || '0';
+    const advance = document.getElementById('advance')?.value || '0';
+    const balance = document.getElementById('balance')?.value || '0';
     
     const printWindow = window.open('', '', 'width=800,height=600');
     printWindow.document.write(`
@@ -90,11 +109,23 @@ function printJobsheet() {
     
     printWindow.document.close();
     printWindow.focus();
+    
     setTimeout(() => {
         printWindow.print();
         printWindow.close();
-        const successModal = bootstrap.Modal.getInstance(document.getElementById('successModal'));
-        successModal.hide();
+        
+        // Close modal and redirect after print
+        closeModalAndRedirect();
     }, 250);
 }
+
+// Also redirect when modal is closed via escape key or backdrop click
+document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
+    // Check if we should redirect (only if modal was not closed by print)
+    if (!document.body.classList.contains('printing')) {
+        setTimeout(() => {
+            window.location.href = "{{ route('jobsheets.index') }}";
+        }, 100);
+    }
+});
 </script>

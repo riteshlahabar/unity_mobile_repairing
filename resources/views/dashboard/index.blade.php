@@ -28,7 +28,6 @@
                         </div>
                         <div class="flex-grow-1 ms-2 text-truncate">
                             <p class="text-dark mb-0 fw-semibold fs-14">New Request</p>
-
                         </div>
                     </div>
                     <h3 class="mt-2 mb-0 fw-bold">8365.00</h3>
@@ -45,7 +44,6 @@
                         </div>
                         <div class="flex-grow-1 ms-2 text-truncate">
                             <p class="text-dark mb-0 fw-semibold fs-14">In Progress</p>
-
                         </div>
                     </div>
                     <h3 class="mt-2 mb-0 fw-bold">865</h3>
@@ -62,7 +60,6 @@
                         </div>
                         <div class="flex-grow-1 ms-2 text-truncate">
                             <p class="text-dark mb-0 fw-semibold fs-14">Completed</p>
-
                         </div>
                     </div>
                     <h3 class="mt-2 mb-0 fw-bold">155</h3>
@@ -98,29 +95,30 @@
                     <th>Customer Name</th>
                     <th>Device</th>
                     <th>Issue</th>
-                    <th>Receive Date</th>
-                    <th>Engineer</th>
+                    <th>Balance</th>
+                    <th>Technician</th>
                     <th>Status</th>
                     <th class="text-end">Action</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td><span class="badge bg-primary-subtle text-primary">#RM001</span></td>
+                    <td><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2 fs-6 px-3 py-2">#RM001</span></td>
                     <td>
                         <img src="/assets/images/users/avatar-1.jpg" alt="" class="rounded-circle thumb-sm me-2 d-inline">
                         John Doe
                     </td>
                     <td>iPhone 14 Pro</td>
                     <td>Screen Broken</td>
-                    <td>08-Nov-2025</td>
+                    <td><strong class="text-success">₹3,000</strong></td>
                     <td>
                         <img src="/assets/images/users/avatar-2.jpg" alt="" class="rounded-circle thumb-xs me-1" title="Mike Johnson">
                         Mike Johnson
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-warning w-100" style="min-width: 120px;">
-                            <i class="iconoir-clock me-1"></i>In Progress
+                        <button type="button" class="btn btn-warning btn-sm d-flex align-items-center justify-content-center" style="min-width: 140px;">
+                            <span class="me-1">In Progress</span>
+                            <span class="badge bg-light text-dark">2</span>
                         </button>
                     </td>
                     <td class="text-end">
@@ -138,21 +136,22 @@
                 </tr>
 
                 <tr>
-                    <td><span class="badge bg-primary-subtle text-primary">#RM002</span></td>
+                    <td><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">#RM002</span></td>
                     <td>
                         <img src="/assets/images/users/avatar-3.jpg" alt="" class="rounded-circle thumb-sm me-2 d-inline">
                         Sarah Williams
                     </td>
                     <td>Samsung Galaxy S23</td>
                     <td>Battery Issue</td>
-                    <td>07-Nov-2025</td>
+                    <td><strong class="text-success">₹1,500</strong></td>
                     <td>
                         <img src="/assets/images/users/avatar-4.jpg" alt="" class="rounded-circle thumb-xs me-1" title="David Lee">
                         David Lee
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-info w-100" style="min-width: 120px;">
-                            <i class="iconoir-hourglass me-1"></i>Pending
+                        <button type="button" class="btn btn-info btn-sm d-flex align-items-center justify-content-center" style="min-width: 140px;">
+                            <span class="me-1">Pending</span>
+                            <span class="badge bg-light text-dark">1</span>
                         </button>
                     </td>
                     <td class="text-end">
@@ -170,21 +169,22 @@
                 </tr>
 
                 <tr>
-                    <td><span class="badge bg-primary-subtle text-primary">#RM003</span></td>
+                    <td><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">#RM003</span></td>
                     <td>
                         <img src="/assets/images/users/avatar-5.jpg" alt="" class="rounded-circle thumb-sm me-2 d-inline">
                         Michael Brown
                     </td>
                     <td>OnePlus 11</td>
                     <td>Charging Port</td>
-                    <td>06-Nov-2025</td>
+                    <td><strong class="text-success">₹0</strong></td>
                     <td>
                         <img src="/assets/images/users/avatar-2.jpg" alt="" class="rounded-circle thumb-xs me-1" title="Mike Johnson">
                         Mike Johnson
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-success w-100" style="min-width: 120px;">
-                            <i class="iconoir-check-circle me-1"></i>Completed
+                        <button type="button" class="btn btn-success btn-sm d-flex align-items-center justify-content-center" style="min-width: 140px;">
+                            <span class="me-1">Completed</span>
+                            <span class="badge bg-light text-dark">3</span>
                         </button>
                     </td>
                     <td class="text-end">
@@ -202,21 +202,22 @@
                 </tr>
 
                 <tr>
-                    <td><span class="badge bg-primary-subtle text-primary">#RM004</span></td>
+                    <td><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">#RM004</span></td>
                     <td>
                         <img src="/assets/images/users/avatar-6.jpg" alt="" class="rounded-circle thumb-sm me-2 d-inline">
                         Emma Davis
                     </td>
                     <td>Pixel 7 Pro</td>
                     <td>Software Glitch</td>
-                    <td>08-Nov-2025</td>
+                    <td><strong class="text-success">₹1,300</strong></td>
                     <td>
                         <img src="/assets/images/users/avatar-7.jpg" alt="" class="rounded-circle thumb-xs me-1" title="James Wilson">
                         James Wilson
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-warning w-100" style="min-width: 120px;">
-                            <i class="iconoir-clock me-1"></i>In Progress
+                        <button type="button" class="btn btn-warning btn-sm d-flex align-items-center justify-content-center" style="min-width: 140px;">
+                            <span class="me-1">In Progress</span>
+                            <span class="badge bg-light text-dark">1</span>
                         </button>
                     </td>
                     <td class="text-end">
@@ -234,21 +235,22 @@
                 </tr>
 
                 <tr>
-                    <td><span class="badge bg-primary-subtle text-primary">#RM005</span></td>
+                    <td><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">#RM005</span></td>
                     <td>
                         <img src="/assets/images/users/avatar-8.jpg" alt="" class="rounded-circle thumb-sm me-2 d-inline">
                         Robert Taylor
                     </td>
                     <td>Xiaomi 13 Pro</td>
                     <td>Camera Not Working</td>
-                    <td>07-Nov-2025</td>
+                    <td><strong class="text-success">₹2,200</strong></td>
                     <td>
                         <img src="/assets/images/users/avatar-4.jpg" alt="" class="rounded-circle thumb-xs me-1" title="David Lee">
                         David Lee
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-danger w-100" style="min-width: 120px;">
-                            <i class="iconoir-box me-1"></i>Waiting Parts
+                        <button type="button" class="btn btn-danger btn-sm d-flex align-items-center justify-content-center" style="min-width: 140px;">
+                            <span class="me-1">Waiting Parts</span>
+                            <span class="badge bg-light text-dark">5</span>
                         </button>
                     </td>
                     <td class="text-end">
@@ -266,21 +268,22 @@
                 </tr>
 
                 <tr>
-                    <td><span class="badge bg-primary-subtle text-primary">#RM006</span></td>
+                    <td><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">#RM006</span></td>
                     <td>
                         <img src="/assets/images/users/avatar-9.jpg" alt="" class="rounded-circle thumb-sm me-2 d-inline">
                         Lisa Anderson
                     </td>
                     <td>iPhone 13</td>
                     <td>Water Damage</td>
-                    <td>05-Nov-2025</td>
+                    <td><strong class="text-success">₹0</strong></td>
                     <td>
                         <img src="/assets/images/users/avatar-2.jpg" alt="" class="rounded-circle thumb-xs me-1" title="Mike Johnson">
                         Mike Johnson
                     </td>
                     <td>
-                        <button class="btn btn-sm btn-primary w-100" style="min-width: 120px;">
-                            <i class="iconoir-delivery-truck me-1"></i>Delivered
+                        <button type="button" class="btn btn-primary btn-sm d-flex align-items-center justify-content-center" style="min-width: 140px;">
+                            <span class="me-1">Delivered</span>
+                            <span class="badge bg-light text-dark">7</span>
                         </button>
                     </td>
                     <td class="text-end">
@@ -300,7 +303,5 @@
         </table>
     </div>
 </div>
-
-
 
 @endsection

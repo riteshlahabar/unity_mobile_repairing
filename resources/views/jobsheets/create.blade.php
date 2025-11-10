@@ -99,6 +99,7 @@
     </div>
 </div>
 <!-- Success Modal -->
+<!-- Success Modal -->
 <div class="modal fade" id="successModal" tabindex="-1" aria-labelledby="successModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -123,20 +124,15 @@
                 </button>
                 <button type="button" class="btn btn-success" onclick="printJobsheet()">
                     <i class="iconoir-page me-1"></i>Print JobSheet
-                </button>
-                <a href="{{ route('jobsheets.index') }}" class="btn btn-info">
-                    <i class="iconoir-list me-1"></i>JobSheet List
-                </a>
-                <a href="{{ route('customers.create') }}" class="btn btn-warning">
-                    <i class="iconoir-plus-circle me-1"></i>Add Customer
-                </a>
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                </button>                
+                <button type="button" class="btn btn-secondary" onclick="closeModalAndRedirect()">
                     <i class="iconoir-cancel me-1"></i>Close
                 </button>
             </div>
         </div>
     </div>
 </div>
+
 
 
 <!-- Include all JavaScript modules -->

@@ -85,17 +85,17 @@
                         <div class="collapse" id="sidebarWhatsapp">
                             <ul class="list-unstyled ps-0">
                                 <li class="nav-item">
-                                    <a href="/whatsapp/festival" class="nav-link ms-4">
-                                        <i class="iconoir-calendar me-2"></i>
-                                        <span>Festival Messages</span>
-                                    </a>
-                                </li>
-                                <li class="nav-item">
                                     <a href="/whatsapp/service" class="nav-link ms-4">
                                         <i class="iconoir-tools me-2"></i>
                                         <span>Service Notifications</span>
                                     </a>
                                 </li>
+                                <li class="nav-item">
+                                    <a href="/whatsapp/festival" class="nav-link ms-4">
+                                        <i class="iconoir-calendar me-2"></i>
+                                        <span>Festival Messages</span>
+                                    </a>
+                                </li>                                
                             </ul>
                         </div>
                     </li>

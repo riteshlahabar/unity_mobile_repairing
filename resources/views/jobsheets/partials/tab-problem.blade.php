@@ -28,6 +28,6 @@
     </fieldset>
     <div class="mt-3">
         <button type="button" class="btn btn-secondary float-start" onclick="prevTab('mobile-tab')">Previous</button>
-        <button type="button" class="btn btn-primary float-end" onclick="nextTab('photo-tab')">Next</button>
+        <button type="button" class="btn btn-primary float-end" id="problemNextBtn" onclick="nextTab('photo-tab')" disabled>Next</button>
     </div>
 </div>
