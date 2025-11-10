@@ -54,222 +54,90 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <!-- JobSheet 1 -->
+                                @forelse($jobSheets as $job)
                                 <tr>
-                                    <td><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">JS0001</span></td>
+                                    <td><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">{{ $job->jobsheet_id }}</span></td>
                                     <td>
                                         <div>
-                                            <h6 class="mb-0">John Doe</h6>
-                                            <small class="text-muted">UMR0001 | 9876543210</small>
+                                            <h6 class="mb-0">{{ $job->customer->full_name }}</h6>
+                                            <small class="text-muted">{{ $job->customer->customer_id }} | {{ $job->customer->contact_no }}</small>
                                         </div>
                                     </td>
                                     <td>
                                         <div>
-                                            <strong>Apple iPhone 14 Pro</strong>
-                                            <br><small class="text-muted">Black, 256GB</small>
+                                            <strong>{{ $job->company }} {{ $job->model }}</strong>
+                                            <br><small class="text-muted">{{ $job->color }}, {{ $job->series }}</small>
                                         </div>
                                     </td>
                                     <td>
-                                        <span class="badge bg-danger">Dead</span>
-                                        <span class="badge bg-warning">Damage</span>
-                                        <br><small>Screen Broken</small>
+                                        @if($job->status_dead)
+                                            <span class="badge bg-danger">Dead</span>
+                                        @endif
+                                        @if($job->status_damage)
+                                            <span class="badge bg-warning">Damage</span>
+                                        @endif
+                                        @if($job->status_on)
+                                            <span class="badge bg-info">On with Problem</span>
+                                        @endif
+                                        <br><small>{{ Str::limit($job->problem_description, 20) }}</small>
                                     </td>
                                     <td>
-                                        <button class="btn btn-sm btn-warning w-100" style="min-width: 100px;">
-                                            <i class="iconoir-clock me-1"></i>In Progress
-                                        </button>
+                                        @if($job->status == 'in_progress')
+                                            <button class="btn btn-sm btn-warning w-100" style="min-width: 100px;">
+                                                <i class="iconoir-clock me-1"></i>In Progress
+                                            </button>
+                                        @elseif($job->status == 'completed')
+                                            <button class="btn btn-sm btn-success w-100" style="min-width: 100px;">
+                                                <i class="iconoir-check-circle me-1"></i>Completed
+                                            </button>
+                                        @elseif($job->status == 'delivered')
+                                            <button class="btn btn-sm btn-info w-100" style="min-width: 100px;">
+                                                <i class="iconoir-hourglass me-1"></i>Delivered
+                                            </button>
+                                        @endif
                                     </td>
                                     <td>
                                         <div>
-                                            <strong>₹5,000</strong>
-                                            <br><small class="text-muted">Adv: ₹2,000</small>
-                                            <br><small class="text-success">Bal: ₹3,000</small>
+                                            <strong>₹{{ number_format($job->estimated_cost, 0) }}</strong>
+                                            <br><small class="text-muted">Adv: ₹{{ number_format($job->advance, 0) }}</small>
+                                            <br><small class="text-success">Bal: ₹{{ number_format($job->balance, 0) }}</small>
                                         </div>
                                     </td>
-                                    <td>Technician 1</td>
+                                    <td>{{ $job->technician ?? 'Not Assigned' }}</td>
                                     <td>
-                                        <small>08-Nov-2025</small>
-                                        <br><small class="text-muted">02:30 PM</small>
+                                        <small>{{ $job->created_at->format('d-M-Y') }}</small>
+                                        <br><small class="text-muted">{{ $job->created_at->format('h:i A') }}</small>
                                     </td>
                                     <td class="text-end">
                                         <div class="dropdown d-inline-block">
-                                            <a class="dropdown-toggle arrow-none" id="dLabel1" data-bs-toggle="dropdown" href="#" role="button">
+                                            <a class="dropdown-toggle arrow-none" id="dLabel{{ $loop->iteration }}" data-bs-toggle="dropdown" href="#" role="button">
                                                 <i class="las la-ellipsis-v fs-20 text-muted"></i>
                                             </a>
                                             <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
-                                                <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
-                                                <a class="dropdown-item" href="#" onclick="downloadPDF('JS0001')"><i class="las la-file-pdf me-2"></i>Download PDF</a>
-                                                <a class="dropdown-item" href="#" onclick="printLabel('JS0001', 'John Doe')"><i class="las la-tag me-2"></i>Print Label</a>
-                                                <a class="dropdown-item" href="#" onclick="printJobsheet('JS0001')"><i class="las la-print me-2"></i>Print JobSheet</a>
+                                                <a class="dropdown-item" href="{{ route('jobsheets.show', $job->jobsheet_id) }}"><i class="las la-eye me-2"></i>View Details</a>
+                                                <a class="dropdown-item" href="{{ route('jobsheets.edit', $job->jobsheet_id) }}"><i class="las la-edit me-2"></i>Edit</a>
+                                                <a class="dropdown-item" href="#" onclick="downloadPDF('{{ $job->jobsheet_id }}')"><i class="las la-file-pdf me-2"></i>Download PDF</a>
+                                                <a class="dropdown-item" href="#" onclick="printLabel('{{ $job->jobsheet_id }}', '{{ $job->customer->full_name }}')"><i class="las la-tag me-2"></i>Print Label</a>
+                                                <a class="dropdown-item" href="#" onclick="printJobsheet('{{ $job->jobsheet_id }}')"><i class="las la-print me-2"></i>Print JobSheet</a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#" onclick="return confirm('Are you sure?')"><i class="las la-trash me-2"></i>Delete</a>
+                                                <form action="{{ route('jobsheets.destroy', $job->jobsheet_id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this jobsheet?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="dropdown-item text-danger" style="border: none; background: none; width: 100%; text-align: left;">
+                                                        <i class="las la-trash me-2"></i>Delete
+                                                    </button>
+                                                </form>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
-
-                                <!-- JobSheet 2 -->
+                                @empty
                                 <tr>
-                                    <td><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">JS0002</span></td>
-                                    <td>
-                                        <div>
-                                            <h6 class="mb-0">Sarah Williams</h6>
-                                            <small class="text-muted">UMR0002 | 9988776655</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <strong>Samsung Galaxy S23</strong>
-                                            <br><small class="text-muted">White, 128GB</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-info">On with Problem</span>
-                                        <br><small>Battery Issue</small>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-info w-100" style="min-width: 100px;">
-                                            <i class="iconoir-hourglass me-1"></i>Pending
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <strong>₹2,500</strong>
-                                            <br><small class="text-muted">Adv: ₹1,000</small>
-                                            <br><small class="text-success">Bal: ₹1,500</small>
-                                        </div>
-                                    </td>
-                                    <td>Technician 2</td>
-                                    <td>
-                                        <small>07-Nov-2025</small>
-                                        <br><small class="text-muted">11:00 AM</small>
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="dropdown d-inline-block">
-                                            <a class="dropdown-toggle arrow-none" id="dLabel2" data-bs-toggle="dropdown" href="#" role="button">
-                                                <i class="las la-ellipsis-v fs-20 text-muted"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
-                                                <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
-                                                <a class="dropdown-item" href="#" onclick="downloadPDF('JS0002')"><i class="las la-file-pdf me-2"></i>Download PDF</a>
-                                                <a class="dropdown-item" href="#" onclick="printLabel('JS0002', 'Sarah Williams')"><i class="las la-tag me-2"></i>Print Label</a>
-                                                <a class="dropdown-item" href="#" onclick="printJobsheet('JS0002')"><i class="las la-print me-2"></i>Print JobSheet</a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#" onclick="return confirm('Are you sure?')"><i class="las la-trash me-2"></i>Delete</a>
-                                            </div>
-                                        </div>
+                                    <td colspan="9" class="text-center py-4">
+                                        <p class="text-muted mb-0">No jobsheets found</p>
                                     </td>
                                 </tr>
-
-                                <!-- JobSheet 3 -->
-                                <tr>
-                                    <td><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">JS0003</span></td>
-                                    <td>
-                                        <div>
-                                            <h6 class="mb-0">Michael Brown</h6>
-                                            <small class="text-muted">UMR0003 | 9765432198</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <strong>OnePlus 11</strong>
-                                            <br><small class="text-muted">Black, 256GB</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-danger">Dead</span>
-                                        <br><small>Charging Port</small>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-success w-100" style="min-width: 100px;">
-                                            <i class="iconoir-check-circle me-1"></i>Completed
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <strong>₹3,000</strong>
-                                            <br><small class="text-muted">Adv: ₹3,000</small>
-                                            <br><small class="text-success">Bal: ₹0</small>
-                                        </div>
-                                    </td>
-                                    <td>Technician 1</td>
-                                    <td>
-                                        <small>06-Nov-2025</small>
-                                        <br><small class="text-muted">03:45 PM</small>
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="dropdown d-inline-block">
-                                            <a class="dropdown-toggle arrow-none" id="dLabel3" data-bs-toggle="dropdown" href="#" role="button">
-                                                <i class="las la-ellipsis-v fs-20 text-muted"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
-                                                <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
-                                                <a class="dropdown-item" href="#" onclick="downloadPDF('JS0003')"><i class="las la-file-pdf me-2"></i>Download PDF</a>
-                                                <a class="dropdown-item" href="#" onclick="printLabel('JS0003', 'Michael Brown')"><i class="las la-tag me-2"></i>Print Label</a>
-                                                <a class="dropdown-item" href="#" onclick="printJobsheet('JS0003')"><i class="las la-print me-2"></i>Print JobSheet</a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#" onclick="return confirm('Are you sure?')"><i class="las la-trash me-2"></i>Delete</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <!-- JobSheet 4 -->
-                                <tr>
-                                    <td><span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">JS0004</span></td>
-                                    <td>
-                                        <div>
-                                            <h6 class="mb-0">Emma Davis</h6>
-                                            <small class="text-muted">UMR0004 | 9654321987</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <strong>Pixel 7 Pro</strong>
-                                            <br><small class="text-muted">Blue, 128GB</small>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        <span class="badge bg-warning">Damage</span>
-                                        <br><small>Software Glitch</small>
-                                    </td>
-                                    <td>
-                                        <button class="btn btn-sm btn-danger w-100" style="min-width: 100px;">
-                                            <i class="iconoir-box me-1"></i>Waiting Parts
-                                        </button>
-                                    </td>
-                                    <td>
-                                        <div>
-                                            <strong>₹1,800</strong>
-                                            <br><small class="text-muted">Adv: ₹500</small>
-                                            <br><small class="text-success">Bal: ₹1,300</small>
-                                        </div>
-                                    </td>
-                                    <td>Technician 3</td>
-                                    <td>
-                                        <small>08-Nov-2025</small>
-                                        <br><small class="text-muted">10:15 AM</small>
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="dropdown d-inline-block">
-                                            <a class="dropdown-toggle arrow-none" id="dLabel4" data-bs-toggle="dropdown" href="#" role="button">
-                                                <i class="las la-ellipsis-v fs-20 text-muted"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
-                                                <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
-                                                <a class="dropdown-item" href="#" onclick="downloadPDF('JS0004')"><i class="las la-file-pdf me-2"></i>Download PDF</a>
-                                                <a class="dropdown-item" href="#" onclick="printLabel('JS0004', 'Emma Davis')"><i class="las la-tag me-2"></i>Print Label</a>
-                                                <a class="dropdown-item" href="#" onclick="printJobsheet('JS0004')"><i class="las la-print me-2"></i>Print JobSheet</a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#" onclick="return confirm('Are you sure?')"><i class="las la-trash me-2"></i>Delete</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
@@ -278,22 +146,12 @@
                     <div class="row mt-3">
                         <div class="col-sm-12 col-md-5">
                             <div class="dataTables_info">
-                                Showing 1 to 4 of 4 entries
+                                Showing {{ $jobSheets->firstItem() ?? 0 }} to {{ $jobSheets->lastItem() ?? 0 }} of {{ $jobSheets->total() }} entries
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-7">
                             <div class="dataTables_paginate float-end">
-                                <ul class="pagination">
-                                    <li class="paginate_button page-item previous disabled">
-                                        <a href="#" class="page-link">Previous</a>
-                                    </li>
-                                    <li class="paginate_button page-item active">
-                                        <a href="#" class="page-link">1</a>
-                                    </li>
-                                    <li class="paginate_button page-item next disabled">
-                                        <a href="#" class="page-link">Next</a>
-                                    </li>
-                                </ul>
+                                {{ $jobSheets->appends(['search' => request('search')])->links('pagination::bootstrap-4') }}
                             </div>
                         </div>
                     </div>
@@ -306,7 +164,6 @@
 <script>
 // Download PDF Function
 function downloadPDF(jobsheetId) {
-    // You can replace this with your actual PDF generation/download logic
     alert('Downloading PDF for ' + jobsheetId);
     // Example: window.location.href = `/jobsheets/${jobsheetId}/pdf`;
 }

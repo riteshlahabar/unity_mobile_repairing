@@ -133,6 +133,29 @@
     </div>
 </div>
 
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Check if customer data is passed via URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const customerId = urlParams.get('customer_id');
+    const customerName = urlParams.get('customer_name');
+    
+    if (customerId && customerName) {
+        // Auto-select customer
+        document.getElementById('searchRow').classList.add('d-none');
+        document.getElementById('selectedCustomerRow').classList.remove('d-none');
+        document.getElementById('displayCustomerId').textContent = customerId;
+        document.getElementById('displayCustomerName').textContent = decodeURIComponent(customerName);
+        document.getElementById('selected_customer_id').value = customerId;
+        
+        // ✅ ENABLE THE WIZARD IMMEDIATELY
+        enableWizard();
+    } else {
+        // ✅ NO CUSTOMER DATA - KEEP WIZARD DISABLED
+        disableWizard();
+    }
+});
+</script>
 
 
 <!-- Include all JavaScript modules -->

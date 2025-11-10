@@ -3,14 +3,83 @@
 document.getElementById('jobsheet-wizard').addEventListener('submit', function(e) {
     e.preventDefault();
     
-    const customerName = document.getElementById('displayCustomerName').textContent || 'John Doe';
-    const jobsheetId = 'JS' + String(Math.floor(Math.random() * 9999) + 1).padStart(4, '0');
-    
-    document.getElementById('success_customer_name').textContent = customerName;
-    document.getElementById('success_jobsheet_id').textContent = jobsheetId;
-    
-    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-    successModal.show();
+    // Validate required fields
+    const customerId = document.getElementById('selected_customer_id').value;
+    if (!customerId) {
+        alert('Please select a customer first');
+        return;
+    }
+
+    const company = document.getElementById('company').value;
+    const model = document.getElementById('model').value;
+    const color = document.getElementById('color').value;
+    const series = document.getElementById('series').value;
+    const problemDescription = document.getElementById('problem_description').value;
+    const deviceCondition = document.querySelector('input[name="device_condition"]:checked')?.value;
+    const waterDamage = document.querySelector('input[name="water_damage"]:checked')?.value;
+    const physicalDamage = document.querySelector('input[name="physical_damage"]:checked')?.value;
+    const estimatedCost = document.getElementById('estimated_cost').value;
+
+    if (!company || !model || !color || !series || !problemDescription || !deviceCondition || !waterDamage || !physicalDamage || !estimatedCost) {
+        alert('Please fill all required fields');
+        return;
+    }
+
+    // Show loading state
+    const submitBtn = document.getElementById('createJobSheetBtn');
+    submitBtn.disabled = true;
+    submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creating...';
+
+    // Prepare form data
+    const formData = new FormData(this);
+
+    // Submit via AJAX
+    fetch('{{ route("jobsheets.store") }}', {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json',
+            'X-Requested-With': 'XMLHttpRequest'
+        },
+        body: formData
+    })
+    .then(response => {
+        const contentType = response.headers.get("content-type");
+        if (!contentType || !contentType.includes("application/json")) {
+            throw new TypeError("Server didn't return JSON!");
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('JobSheet Response:', data);
+        
+        if (data.success) {
+            // Get customer name
+            const customerName = document.getElementById('displayCustomerName').textContent;
+            
+            // Set success modal data
+            document.getElementById('success_customer_name').textContent = customerName;
+            document.getElementById('success_jobsheet_id').textContent = data.jobsheet_id;
+            
+            // Show success modal
+            const successModal = new bootstrap.Modal(document.getElementById('successModal'));
+            successModal.show();
+            
+            // Reset submit button
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="iconoir-check-circle me-1"></i>Create JobSheet';
+        } else {
+            throw new Error(data.message || 'Failed to create jobsheet');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error creating jobsheet: ' + error.message);
+        
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = '<i class="iconoir-check-circle me-1"></i>Create JobSheet';
+    });
 });
 
 // Close Modal and Redirect to JobSheet List
@@ -21,7 +90,7 @@ function closeModalAndRedirect() {
     // Redirect to jobsheet list page after modal is closed
     setTimeout(() => {
         window.location.href = "{{ route('jobsheets.index') }}";
-    }, 300); // Small delay to allow modal close animation
+    }, 300);
 }
 
 // Print Label Function (Popup remains open)
@@ -60,8 +129,6 @@ function printLabel() {
         printWindow.print();
         printWindow.close();
     }, 250);
-    
-    alert('Label printed successfully!');
 }
 
 // Print JobSheet Function (Redirects after print)
@@ -121,11 +188,8 @@ function printJobsheet() {
 
 // Also redirect when modal is closed via escape key or backdrop click
 document.getElementById('successModal').addEventListener('hidden.bs.modal', function () {
-    // Check if we should redirect (only if modal was not closed by print)
-    if (!document.body.classList.contains('printing')) {
-        setTimeout(() => {
-            window.location.href = "{{ route('jobsheets.index') }}";
-        }, 100);
-    }
+    setTimeout(() => {
+        window.location.href = "{{ route('jobsheets.index') }}";
+    }, 100);
 });
 </script>

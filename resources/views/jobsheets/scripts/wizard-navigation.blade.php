@@ -1,16 +1,33 @@
 <script>
-// Wizard Enable/Disable
+// Wizard Enable/Disable Functions
 function enableWizard() {
+    // Remove disabled attribute from all fieldsets
     document.querySelectorAll('#jobsheet-wizard fieldset').forEach(fieldset => {
         fieldset.removeAttribute('disabled');
     });
-    checkMobileTabValidation(); // Check validation after enabling
+    
+    // Check mobile tab validation after enabling
+    checkMobileTabValidation();
+    
+    console.log('✅ Wizard enabled');
 }
 
 function disableWizard() {
+    // Add disabled attribute to all fieldsets
     document.querySelectorAll('#jobsheet-wizard fieldset').forEach(fieldset => {
         fieldset.setAttribute('disabled', 'disabled');
     });
+    
+    // Disable all Next buttons
+    const nextButtons = document.querySelectorAll('[id$="NextBtn"]');
+    nextButtons.forEach(btn => {
+        if (btn) {
+            btn.disabled = true;
+            btn.classList.add('disabled');
+        }
+    });
+    
+    console.log('🔒 Wizard disabled');
 }
 
 // Dropdown Selection with validation check
@@ -38,26 +55,42 @@ function checkMobileTabValidation() {
     if (company && model && color && series) {
         nextBtn.disabled = false;
         nextBtn.classList.remove('disabled');
+        console.log('✅ Mobile tab validated');
     } else {
         nextBtn.disabled = true;
         nextBtn.classList.add('disabled');
+        console.log('❌ Mobile tab incomplete');
     }
 }
 
 // Tab Navigation
 function nextTab(tabId) {
     const tab = document.getElementById(tabId);
-    if (tab) tab.click();
+    if (tab) {
+        tab.click();
+        console.log('→ Moving to tab:', tabId);
+    }
 }
 
 function prevTab(tabId) {
     const tab = document.getElementById(tabId);
-    if (tab) tab.click();
+    if (tab) {
+        tab.click();
+        console.log('← Moving back to tab:', tabId);
+    }
 }
 
-// Initialize - Disable wizard on load and check validation
+// Initialize on page load
 window.addEventListener('DOMContentLoaded', function() {
-    disableWizard();
-    checkMobileTabValidation(); // Initial check
+    // Check if customer is already selected (from URL params)
+    const urlParams = new URLSearchParams(window.location.search);
+    const customerId = urlParams.get('customer_id');
+    
+    if (!customerId) {
+        // No customer selected - disable wizard
+        disableWizard();
+        console.log('⚠️ No customer selected - wizard disabled');
+    }
+    // If customer exists, enableWizard() will be called from the main script
 });
 </script>

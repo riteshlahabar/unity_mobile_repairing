@@ -18,13 +18,15 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 // Customers
 Route::prefix('customers')->name('customers.')->group(function () {
+    Route::get('/search', [CustomerController::class, 'search'])->name('search'); // ✅ FIRST
     Route::get('/', [CustomerController::class, 'index'])->name('index');
     Route::get('/create', [CustomerController::class, 'create'])->name('create');
     Route::post('/store', [CustomerController::class, 'store'])->name('store');
-    Route::get('/{id}', [CustomerController::class, 'show'])->name('show');
+    Route::post('/check-contact', [CustomerController::class, 'checkContact'])->name('checkContact');
     Route::get('/{id}/edit', [CustomerController::class, 'edit'])->name('edit');
     Route::put('/{id}', [CustomerController::class, 'update'])->name('update');
     Route::delete('/{id}', [CustomerController::class, 'destroy'])->name('destroy');
+    Route::get('/{id}', [CustomerController::class, 'show'])->name('show'); // ✅ LAST
 });
 
 // JobSheets

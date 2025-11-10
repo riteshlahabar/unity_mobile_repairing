@@ -16,7 +16,7 @@
     <!-- Customer List Card -->
     <div class="row">
         <div class="col-12">
-            <div class="card">
+            <div class="card" style="min-height: calc(100vh - 200px);">
                 <div class="card-header">
                     <div class="row align-items-center">
                         <div class="col-md-6 mb-3 mb-md-0">
@@ -37,10 +37,10 @@
                     </div>
                 </div>
 
-                <div class="card-body pt-0">
-                    <div class="table-responsive">
+                <div class="card-body pt-0" style="display: flex; flex-direction: column; min-height: calc(100vh - 320px);">
+                    <div class="table-responsive" style="flex: 1; overflow-y: auto;">
                         <table class="table mb-0 table-centered">
-                            <thead class="table-light">
+                            <thead class="table-light" style="position: sticky; top: 0; z-index: 10;">
                                 <tr>
                                     <th>Customer ID</th>
                                     <th>Name</th>
@@ -48,223 +48,74 @@
                                     <th>Contact Number</th>
                                     <th>Alternate Number</th>
                                     <th>WhatsApp Number</th>
+                                    <th>Total Jobsheets</th>
                                     <th class="text-end">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
+                                @forelse($customers as $customer)
                                 <tr>
                                     <td>
-                                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">UMR0001</span>
+                                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">{{ $customer->customer_id }}</span>
                                     </td>
                                     <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <img src="/assets/images/users/avatar-1.jpg" alt="" class="rounded-circle thumb-sm me-2">
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0">John Doe</h6>
-                                            </div>
-                                        </div>
+                                        <h6 class="mb-0">{{ $customer->full_name }}</h6>
                                     </td>
-                                    <td>123 Main St, Mumbai</td>
-                                    <td>9876543210</td>
-                                    <td>9123456789</td>
+                                    <td>{{ Str::limit($customer->address, 30) }}</td>
+                                    <td>{{ $customer->contact_no }}</td>
+                                    <td>{{ $customer->alternate_no ?? '-' }}</td>
+                                    <td>{{ $customer->whatsapp_no }}</td>
                                     <td>
-                                        <a href="https://wa.me/919876543210" target="_blank" class="text-success">
-                                            <i class="iconoir-message-text me-1"></i>9876543210
-                                        </a>
+                                        <span class="badge bg-info-subtle text-info fs-6 px-3 py-2">{{ $customer->jobSheets->count() }}</span>
                                     </td>
                                     <td class="text-end">
                                         <div class="dropdown d-inline-block">
-                                            <a class="dropdown-toggle arrow-none" id="dLabel1" data-bs-toggle="dropdown" href="#" role="button">
+                                            <a class="dropdown-toggle arrow-none" id="dLabel{{ $loop->iteration }}" data-bs-toggle="dropdown" href="#" role="button">
                                                 <i class="las la-ellipsis-v fs-20 text-muted"></i>
                                             </a>
                                             <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
-                                                <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
-                                                <a class="dropdown-item" href="{{ route('jobsheets.create') }}"><i class="las la-clipboard me-2"></i>Create JobSheet</a>
+                                                <a class="dropdown-item" href="{{ route('customers.show', $customer->customer_id) }}"><i class="las la-eye me-2"></i>View Details</a>
+                                                <a class="dropdown-item" href="{{ route('customers.edit', $customer->customer_id) }}"><i class="las la-edit me-2"></i>Edit</a>
+                                                <a class="dropdown-item" href="{{ route('jobsheets.create') }}?customer_id={{ $customer->customer_id }}&customer_name={{ urlencode($customer->full_name) }}"><i class="las la-clipboard me-2"></i>Create JobSheet</a>
                                                 <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#" onclick="return confirm('Are you sure?')"><i class="las la-trash me-2"></i>Delete</a>
+                                                <form action="{{ route('customers.destroy', $customer->customer_id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this customer?');">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="dropdown-item text-danger" style="border: none; background: none; width: 100%; text-align: left;">
+                                                        <i class="las la-trash me-2"></i>Delete
+                                                    </button>
+                                                </form>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
-
+                                @empty
                                 <tr>
-                                    <td>
-                                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">UMR0002</span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <img src="/assets/images/users/avatar-3.jpg" alt="" class="rounded-circle thumb-sm me-2">
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0">Sarah Williams</h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>456 Park Ave, Delhi</td>
-                                    <td>9988776655</td>
-                                    <td>-</td>
-                                    <td>
-                                        <a href="https://wa.me/919988776655" target="_blank" class="text-success">
-                                            <i class="iconoir-message-text me-1"></i>9988776655
-                                        </a>
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="dropdown d-inline-block">
-                                            <a class="dropdown-toggle arrow-none" id="dLabel2" data-bs-toggle="dropdown" href="#" role="button">
-                                                <i class="las la-ellipsis-v fs-20 text-muted"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
-                                                <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
-                                                <a class="dropdown-item" href="{{ route('jobsheets.create') }}"><i class="las la-clipboard me-2"></i>Create JobSheet</a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#" onclick="return confirm('Are you sure?')"><i class="las la-trash me-2"></i>Delete</a>
-                                            </div>
+                                    <td colspan="8" class="text-center py-5">
+                                        <div style="padding: 60px 0;">
+                                            <i class="las la-user-times" style="font-size: 4rem; color: #ccc;"></i>
+                                            <p class="text-muted mb-0 mt-3">No customers found</p>
+                                            @if(request('search'))
+                                                <small class="text-muted">Try a different search term</small>
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>
-
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">UMR0003</span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <img src="/assets/images/users/avatar-5.jpg" alt="" class="rounded-circle thumb-sm me-2">
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0">Michael Brown</h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>789 Lake View, Bangalore</td>
-                                    <td>9765432198</td>
-                                    <td>8876543219</td>
-                                    <td>
-                                        <a href="https://wa.me/919765432198" target="_blank" class="text-success">
-                                            <i class="iconoir-message-text me-1"></i>9765432198
-                                        </a>
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="dropdown d-inline-block">
-                                            <a class="dropdown-toggle arrow-none" id="dLabel3" data-bs-toggle="dropdown" href="#" role="button">
-                                                <i class="las la-ellipsis-v fs-20 text-muted"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
-                                                <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
-                                                <a class="dropdown-item" href="{{ route('jobsheets.create') }}"><i class="las la-clipboard me-2"></i>Create JobSheet</a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#" onclick="return confirm('Are you sure?')"><i class="las la-trash me-2"></i>Delete</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">UMR0004</span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <img src="/assets/images/users/avatar-6.jpg" alt="" class="rounded-circle thumb-sm me-2">
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0">Emma Davis</h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>321 Hill Road, Pune</td>
-                                    <td>9654321987</td>
-                                    <td>-</td>
-                                    <td>
-                                        <a href="https://wa.me/919654321987" target="_blank" class="text-success">
-                                            <i class="iconoir-message-text me-1"></i>9654321987
-                                        </a>
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="dropdown d-inline-block">
-                                            <a class="dropdown-toggle arrow-none" id="dLabel4" data-bs-toggle="dropdown" href="#" role="button">
-                                                <i class="las la-ellipsis-v fs-20 text-muted"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
-                                                <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
-                                                <a class="dropdown-item" href="{{ route('jobsheets.create') }}"><i class="las la-clipboard me-2"></i>Create JobSheet</a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#" onclick="return confirm('Are you sure?')"><i class="las la-trash me-2"></i>Delete</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <span class="badge bg-primary-subtle text-primary fs-6 px-3 py-2">UMR0005</span>
-                                    </td>
-                                    <td>
-                                        <div class="d-flex align-items-center">
-                                            <div class="flex-shrink-0">
-                                                <img src="/assets/images/users/avatar-8.jpg" alt="" class="rounded-circle thumb-sm me-2">
-                                            </div>
-                                            <div class="flex-grow-1">
-                                                <h6 class="mb-0">Robert Taylor</h6>
-                                            </div>
-                                        </div>
-                                    </td>
-                                    <td>555 Beach Road, Chennai</td>
-                                    <td>9543218765</td>
-                                    <td>8765432109</td>
-                                    <td>
-                                        <a href="https://wa.me/919543218765" target="_blank" class="text-success">
-                                            <i class="iconoir-message-text me-1"></i>9543218765
-                                        </a>
-                                    </td>
-                                    <td class="text-end">
-                                        <div class="dropdown d-inline-block">
-                                            <a class="dropdown-toggle arrow-none" id="dLabel5" data-bs-toggle="dropdown" href="#" role="button">
-                                                <i class="las la-ellipsis-v fs-20 text-muted"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="#"><i class="las la-eye me-2"></i>View Details</a>
-                                                <a class="dropdown-item" href="#"><i class="las la-edit me-2"></i>Edit</a>
-                                                <a class="dropdown-item" href="{{ route('jobsheets.create') }}"><i class="las la-clipboard me-2"></i>Create JobSheet</a>
-                                                <div class="dropdown-divider"></div>
-                                                <a class="dropdown-item text-danger" href="#" onclick="return confirm('Are you sure?')"><i class="las la-trash me-2"></i>Delete</a>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Pagination -->
-                    <div class="row mt-3">
+                    <!-- Pagination - Always at bottom -->
+                    <div class="row mt-3" style="margin-top: auto;">
                         <div class="col-sm-12 col-md-5">
                             <div class="dataTables_info">
-                                Showing 1 to 5 of 5 entries
+                                Showing {{ $customers->firstItem() ?? 0 }} to {{ $customers->lastItem() ?? 0 }} of {{ $customers->total() }} entries
                             </div>
                         </div>
                         <div class="col-sm-12 col-md-7">
                             <div class="dataTables_paginate float-end">
-                                <ul class="pagination">
-                                    <li class="paginate_button page-item previous disabled">
-                                        <a href="#" class="page-link">Previous</a>
-                                    </li>
-                                    <li class="paginate_button page-item active">
-                                        <a href="#" class="page-link">1</a>
-                                    </li>
-                                    <li class="paginate_button page-item next disabled">
-                                        <a href="#" class="page-link">Next</a>
-                                    </li>
-                                </ul>
+                                {{ $customers->links('pagination::bootstrap-4') }}
                             </div>
                         </div>
                     </div>
@@ -273,4 +124,58 @@
         </div>
     </div>
 </div>
+
+<style>
+/* Ensure table extends to bottom */
+.card {
+    display: flex;
+    flex-direction: column;
+}
+
+.card-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.table-responsive {
+    flex: 1;
+    overflow-y: auto;
+    max-height: calc(100vh - 320px);
+}
+
+/* Sticky header for scrollable table */
+.table-responsive thead th {
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Custom scrollbar for table */
+.table-responsive::-webkit-scrollbar {
+    width: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+/* Ensure pagination stays at bottom */
+.row.mt-3 {
+    margin-top: auto !important;
+    padding-top: 1rem;
+    border-top: 1px solid #e9ecef;
+}
+</style>
 @endsection
