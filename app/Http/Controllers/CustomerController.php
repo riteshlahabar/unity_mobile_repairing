@@ -7,6 +7,8 @@ use App\Models\JobSheet;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
+use App\Http\Controllers\SendMessageController;
+
 class CustomerController extends Controller
 {
     // Show all customers (only today's delivered customers + customers without delivered jobsheets)
@@ -90,6 +92,10 @@ class CustomerController extends Controller
 
             $validated['customer_id'] = Customer::generateCustomerId();
             $customer = Customer::create($validated);
+
+             // ✅ Send Welcome WhatsApp Message
+        $messageController = new SendMessageController(new \App\Services\WhatsAppService());
+        $messageController->sendCustomerWelcome($customer);
 
             return response()->json([
                 'success' => true,

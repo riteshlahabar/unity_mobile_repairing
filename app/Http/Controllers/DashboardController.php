@@ -13,31 +13,34 @@ class DashboardController extends Controller
     {
         $today = Carbon::today();
 
-        // New Requests (Created Today)
-        $newRequestCount = JobSheet::whereDate('created_at', $today)->count();
+        // Total counts
+        $totalCustomers = Customer::count();
+        $totalJobSheets = JobSheet::count();
 
-        // In Progress
+        // Status counts
         $inProgressCount = JobSheet::where('status', 'in_progress')->count();
-
-        // Completed
         $completedCount = JobSheet::where('status', 'completed')->count();
-
-        // Delivered Today
         $deliveredTodayCount = JobSheet::where('status', 'delivered')
             ->whereDate('updated_at', $today)
             ->count();
 
-        // Recent JobSheets with Customer (for table)
+        // New request (created today)
+        $newRequestCount = JobSheet::whereDate('created_at', $today)->count();
+
+        // Recent jobsheets ordered by status (In Progress → Completed → Delivered)
         $recentJobSheets = JobSheet::with('customer')
+            ->orderByRaw("FIELD(status, 'in_progress', 'completed', 'delivered')")
             ->latest()
-            ->take(10)
+            ->take(20)
             ->get();
 
         return view('dashboard.index', compact(
-            'newRequestCount',
+            'totalCustomers',
+            'totalJobSheets',
             'inProgressCount',
             'completedCount',
             'deliveredTodayCount',
+            'newRequestCount',
             'recentJobSheets'
         ));
     }

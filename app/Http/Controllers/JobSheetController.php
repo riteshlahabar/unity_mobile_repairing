@@ -8,6 +8,14 @@ use App\Models\DevicePhoto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
+
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Services\WhatsAppService;  // ✅ ADD THIS
+use App\Services\JobSheetPdfService;  // ✅ ADD THIS IF MISSING
+use App\Http\Controllers\SendMessageController;  // ✅ ADD THIS IF MISSING
+
+
 
 class JobSheetController extends Controller
 {
@@ -121,6 +129,10 @@ class JobSheetController extends Controller
             }
         }
 
+        // ✅ Send Device Received Message with PDF
+        $messageController = new SendMessageController(new \App\Services\WhatsAppService());
+        $messageController->sendDeviceReceived($jobSheet);
+
         // ALWAYS return JSON for AJAX requests
         if ($request->expectsJson() || $request->ajax() || $request->wantsJson()) {
             return response()->json([
@@ -166,68 +178,264 @@ class JobSheetController extends Controller
 
     // Show single jobsheet
     public function show($id)
-    {
-        $jobSheet = JobSheet::where('jobsheet_id', $id)->with(['customer', 'devicePhotos'])->firstOrFail();
-        return view('jobsheets.show', compact('jobSheet'));
-    }
+{
+    $jobSheet = JobSheet::with(['customer', 'devicePhotos'])
+        ->where('jobsheet_id', $id)
+        ->firstOrFail();
+    
+    return view('jobsheets.show', compact('jobSheet'));
+}
 
     // Show edit form
-    public function edit($id)
-    {
-        $jobSheet = JobSheet::where('jobsheet_id', $id)->with('devicePhotos')->firstOrFail();
-        return view('jobsheets.edit', compact('jobSheet'));
-    }
+public function edit($id)
+{
+    $jobSheet = JobSheet::with('customer')
+        ->where('jobsheet_id', $id)
+        ->firstOrFail();
+    
+    return view('jobsheets.edit', compact('jobSheet'));
+}
 
-    // Update jobsheet
-    public function update(Request $request, $id)
-    {
+
+   
+// Update jobsheet
+public function update(Request $request, $id)
+{
+    try {
         $jobSheet = JobSheet::where('jobsheet_id', $id)->firstOrFail();
 
         $validated = $request->validate([
             'company' => 'required|string',
             'model' => 'required|string',
+            'color' => 'required|string',
+            'series' => 'required|string',
+            'imei' => 'nullable|string|max:15',
             'problem_description' => 'required|string',
+            'device_condition' => 'required|in:fresh,shop_return,other',
+            'water_damage' => 'required|in:none,lite,full',
+            'physical_damage' => 'required|in:none,lite,full',
             'estimated_cost' => 'required|numeric|min:0',
-            'advance' => 'nullable|numeric|min:0',
+            'advance' => 'required|numeric|min:0',
         ]);
 
-        $validated['balance'] = $validated['estimated_cost'] - ($validated['advance'] ?? 0);
+        // Calculate balance
+        $validated['balance'] = $validated['estimated_cost'] - $validated['advance'];
 
+        // Handle checkboxes
+        $validated['status_dead'] = $request->has('status_dead');
+        $validated['status_damage'] = $request->has('status_damage');
+        $validated['status_on'] = $request->has('status_on');
+        $validated['accessory_sim_tray'] = $request->has('accessory_sim_tray');
+        $validated['accessory_sim_card'] = $request->has('accessory_sim_card');
+        $validated['accessory_memory_card'] = $request->has('accessory_memory_card');
+        $validated['accessory_mobile_cover'] = $request->has('accessory_mobile_cover');
+        $validated['jobsheet_required'] = $request->has('jobsheet_required');
+
+        // Optional fields
+        $validated['other_accessories'] = $request->input('other_accessories');
+        $validated['device_password'] = $request->input('device_password');
+        $validated['technician'] = $request->input('technician');
+        $validated['location'] = $request->input('location');
+        $validated['remarks'] = $request->input('remarks');
+        $validated['terms_conditions'] = $request->input('terms_conditions');
+
+        // Update jobsheet
         $jobSheet->update($validated);
 
-        return redirect()->route('jobsheets.index')->with('success', 'JobSheet updated successfully!');
+        return redirect()
+            ->route('jobsheets.edit', $jobSheet->jobsheet_id)
+            ->with('success', 'JobSheet updated successfully!');
+
+    } catch (\Exception $e) {
+        \Log::error('JobSheet Update Error: ' . $e->getMessage());
+        return back()
+            ->with('error', 'An error occurred while updating')
+            ->withInput();
     }
+}
 
-    // Delete jobsheet
-    public function destroy($id)
-    {
-        $jobSheet = JobSheet::where('jobsheet_id', $id)->firstOrFail();
-        
-        foreach ($jobSheet->devicePhotos as $photo) {
-            Storage::disk('public')->delete($photo->photo_path);
-            $photo->delete();
-        }
-
-        $jobSheet->delete();
-
-        return redirect()->route('jobsheets.index')->with('success', 'JobSheet deleted successfully!');
-    }
-
-    // Mark as complete
-    public function markComplete($id)
-    {
+    
+    // Mark as complete (AJAX)
+public function markComplete($id)
+{
+    try {
         $jobSheet = JobSheet::where('jobsheet_id', $id)->firstOrFail();
         $jobSheet->update(['status' => 'completed']);
 
-        return redirect()->route('jobsheets.index')->with('success', 'JobSheet marked as complete!');
-    }
+        // Send Repair Completed Message
+        $messageController = new SendMessageController(new \App\Services\WhatsAppService());
+        $messageController->sendRepairCompleted($jobSheet);
 
-    // Mark as delivered
-    public function markDelivered($id)
-    {
+        return response()->json([
+            'success' => true,
+            'message' => 'JobSheet marked as complete',
+            'jobsheet' => [
+                'jobsheet_id' => $jobSheet->jobsheet_id,
+                'status' => $jobSheet->status,
+                'balance' => $jobSheet->balance
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Mark Complete Error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+
+public function generateDeliveryOTP($id)
+{
+    try {
         $jobSheet = JobSheet::where('jobsheet_id', $id)->firstOrFail();
+
+        // ✅ Send OTP via Message Controller
+        $messageController = new SendMessageController(new \App\Services\WhatsAppService());
+        $result = $messageController->sendDeliveryOTP($jobSheet);
+
+        return response()->json($result);
+
+    } catch (\Exception $e) {
+        \Log::error('OTP Generation Error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ], 500);
+    }
+}
+
+// Verify OTP and mark as delivered
+public function verifyOTPAndDeliver(Request $request, $id)
+{
+    try {
+        $jobSheet = JobSheet::where('jobsheet_id', $id)->firstOrFail();
+
+        $validated = $request->validate([
+            'otp' => 'required|string|size:6'
+        ]);
+
+        // ✅ Verify OTP via Message Controller
+        $messageController = new SendMessageController(new \App\Services\WhatsAppService());
+        $verification = $messageController->verifyDeliveryOTP($jobSheet, $validated['otp']);
+
+        if (!$verification['success']) {
+            return response()->json($verification, 400);
+        }
+
+        // Mark jobsheet as delivered
         $jobSheet->update(['status' => 'delivered']);
 
-        return redirect()->route('jobsheets.index')->with('success', 'JobSheet marked as delivered!');
+        // ✅ Send Thank You Message
+        $messageController->sendThankYou($jobSheet);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'JobSheet marked as delivered and customer thanked!'
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('OTP Verification Error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => 'Error: ' . $e->getMessage()
+        ], 500);
     }
+}
+
+    // Mark as delivered
+    // Mark as delivered (AJAX with OTP)
+// Mark as delivered (only check if OTP is verified, don't verify again)
+public function markDelivered(Request $request, $id)
+{
+    try {
+        $jobSheet = JobSheet::where('jobsheet_id', $id)->firstOrFail();
+
+        // Check if OTP is already verified
+        $messageController = new SendMessageController(new WhatsAppService());
+        
+        if (!$messageController->isOTPVerified($jobSheet)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please verify OTP first'
+            ], 400);
+        }
+
+        // Mark jobsheet as delivered
+        $jobSheet->update(['status' => 'delivered']);
+
+        // Clear OTP from cache
+        $messageController->clearOTP($jobSheet);
+
+        // Send Thank You Message
+        $messageController->sendThankYou($jobSheet);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'JobSheet marked as delivered',
+            'jobsheet' => [
+                'jobsheet_id' => $jobSheet->jobsheet_id,
+                'status' => $jobSheet->status,
+                'balance' => $jobSheet->balance
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Mark Delivered Error: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+    }
+}
+// Delete jobsheet
+public function destroy($id)
+{
+    try {
+        $jobSheet = JobSheet::where('jobsheet_id', $id)->firstOrFail();
+        
+        // Delete associated device photos
+        foreach ($jobSheet->devicePhotos as $photo) {
+            // Delete file from storage
+            if (Storage::disk('public')->exists($photo->photo_path)) {
+                Storage::disk('public')->delete($photo->photo_path);
+            }
+            // Delete database record
+            $photo->delete();
+        }
+        
+        // Delete jobsheet
+        $jobSheet->delete();
+        
+        return redirect()
+            ->route('jobsheets.index')
+            ->with('success', 'JobSheet deleted successfully!');
+        
+    } catch (\Exception $e) {
+        \Log::error('JobSheet Delete Error: ' . $e->getMessage());
+        return back()->with('error', 'Failed to delete jobsheet');
+    }
+}
+
+// Download JobSheet PDF
+public function downloadPDF($id)
+{
+    try {
+        $jobSheet = JobSheet::with(['customer', 'devicePhotos'])
+            ->where('jobsheet_id', $id)
+            ->firstOrFail();
+        
+        // Generate PDF
+        $pdf = Pdf::loadView('pdf.jobsheet', compact('jobSheet'));
+        
+        // Download with filename
+        $fileName = 'JobSheet_' . $jobSheet->jobsheet_id . '.pdf';
+        
+        return $pdf->download($fileName);
+        
+    } catch (\Exception $e) {
+        \Log::error('PDF Download Error: ' . $e->getMessage());
+        return back()->with('error', 'Failed to generate PDF');
+    }
+}
 }

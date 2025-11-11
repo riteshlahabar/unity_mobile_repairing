@@ -14,9 +14,8 @@ class DevicePhoto extends Model
         'photo_path',
     ];
 
-    // Relationship with JobSheet
     public function jobSheet()
     {
-        return $this->belongsTo(JobSheet::class);
+        return $this->belongsTo(JobSheet::class, 'job_sheet_id', 'id');
     }
 }

@@ -38,16 +38,30 @@ Route::prefix('jobsheets')->name('jobsheets.')->group(function () {
     Route::get('/{id}/edit', [JobSheetController::class, 'edit'])->name('edit');
     Route::put('/{id}', [JobSheetController::class, 'update'])->name('update');
     Route::delete('/{id}', [JobSheetController::class, 'destroy'])->name('destroy');
+     // PDF Download
+    Route::get('/{id}/download-pdf', [JobSheetController::class, 'downloadPDF'])->name('downloadPDF');
+    // Status update routes
     Route::post('/{id}/mark-complete', [JobSheetController::class, 'markComplete'])->name('markComplete');
-    Route::post('/{id}/mark-delivered', [JobSheetController::class, 'markDelivered'])->name('markDelivered');
+    Route::post('/{id}/generate-otp', [JobSheetController::class, 'generateDeliveryOTP'])->name('generateOTP');
+    Route::post('/{id}/verify-otp', [JobSheetController::class, 'verifyOTPAndDeliver'])->name('verifyOTP');
+    Route::post('/{id}/mark-delivered', [JobSheetController::class, 'markDelivered'])->name('markDelivered');    
 });
+
 
 // WhatsApp
 Route::prefix('whatsapp')->name('whatsapp.')->group(function () {
     Route::get('/festival', [WhatsAppController::class, 'festival'])->name('festival');
     Route::get('/service', [WhatsAppController::class, 'service'])->name('service');
     Route::post('/send', [WhatsAppController::class, 'sendMessage'])->name('send');
+    Route::post('/notifications/store', [WhatsAppController::class, 'storeNotification'])->name('notifications.store');
+    Route::post('/notifications/{id}/update', [WhatsAppController::class, 'updateNotification'])->name('notifications.update');
+    Route::post('/notifications/{id}/delete', [WhatsAppController::class, 'deleteNotification'])->name('notifications.delete');
 });
+
+Route::prefix('messages')->name('messages.')->group(function () {
+    Route::post('/resend', [SendMessageController::class, 'resendMessage'])->name('resend');
+});
+
 
 // Reports
 Route::get('/reports', [ReportController::class, 'index'])->name('reports');

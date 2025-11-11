@@ -65,10 +65,9 @@ class JobSheet extends Model
 
     // Relationship with Device Photos
     public function devicePhotos()
-    {
-        return $this->hasMany(DevicePhoto::class);
-    }
-
+{
+    return $this->hasMany(DevicePhoto::class, 'job_sheet_id', 'id');
+}
     // Generate SERIAL JobSheet ID (JS0001, JS0002, JS0003, etc.) - CONTINUOUS
     public static function generateJobSheetId()
     {
@@ -87,4 +86,7 @@ class JobSheet extends Model
         
         return 'JS' . str_pad($newNumber, 4, '0', STR_PAD_LEFT);
     }
+    // Relationship with Device Photos
+
+
 }

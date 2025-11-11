@@ -14,6 +14,12 @@ return [
     |
     */
 
+    'greenapi' => [
+        'instance_id' => env('GREENAPI_INSTANCE_ID'),
+        'token' => env('GREENAPI_TOKEN'),
+        'api_url' => 'https://api.green-api.com',
+    ],
+
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),
     ],

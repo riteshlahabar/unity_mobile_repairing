@@ -19,7 +19,7 @@
             <div class="d-flex align-items-start flex-column w-100">
                 <ul class="navbar-nav mb-auto w-100">
                     <li class="menu-label mt-2"><span>Navigation</span></li>
-                    
+
                     <!-- Dashboard -->
                     <li class="nav-item">
                         <a class="nav-link {!! Request::is('dashboard') ? 'active' : '' !!}" href="/dashboard">
@@ -28,58 +28,60 @@
                         </a>
                     </li>
 
-                   <!-- Customers -->
-<li class="nav-item">
-    <a class="nav-link" href="#sidebarCustomers" data-bs-toggle="collapse">
-        <i class="iconoir-user menu-icon"></i>
-        <span>Customers</span>
-    </a>
-    <div class="collapse" id="sidebarCustomers">
-        <ul class="list-unstyled ps-0">
-            <li class="nav-item">
-                <a href="{{ route('customers.create') }}" class="nav-link ms-4">
-                    <i class="iconoir-plus-circle me-2"></i>
-                    <span>Add New Customer</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('customers.index') }}" class="nav-link ms-4">
-                    <i class="iconoir-list me-2"></i>
-                    <span>Customer List</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-</li>
+                    <!-- Customers -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="#sidebarCustomers" data-bs-toggle="collapse">
+                            <i class="iconoir-user menu-icon"></i>
+                            <span>Customers</span>
+                        </a>
+                        <div class="collapse" id="sidebarCustomers">
+                            <ul class="list-unstyled ps-0">
+                                <li class="nav-item">
+                                    <a href="{{ route('customers.create') }}" class="nav-link ms-4">
+                                        <i class="iconoir-plus-circle me-2"></i>
+                                        <span>Add New Customer</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('customers.index') }}" class="nav-link ms-4">
+                                        <i class="iconoir-list me-2"></i>
+                                        <span>Customer List</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
-<!-- JobSheets -->
-<li class="nav-item">
-    <a class="nav-link" href="#sidebarJobsheets" data-bs-toggle="collapse">
-        <i class="iconoir-clipboard-check menu-icon"></i>
-        <span>JobSheets</span>
-    </a>
-    <div class="collapse" id="sidebarJobsheets">
-        <ul class="list-unstyled ps-0">
-            <li class="nav-item">
-                <a href="{{ route('jobsheets.create') }}" class="nav-link ms-4">
-                    <i class="iconoir-plus-circle me-2"></i>
-                    <span>Add New JobSheet</span>
-                </a>
-            </li>
-            <li class="nav-item">
-                <a href="{{ route('jobsheets.index') }}" class="nav-link ms-4">
-                    <i class="iconoir-list me-2"></i>
-                    <span>JobSheet List</span>
-                </a>
-            </li>
-        </ul>
-    </div>
-</li>
+                    <!-- JobSheets -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="#sidebarJobsheets" data-bs-toggle="collapse">
+                            <i class="iconoir-clipboard-check menu-icon"></i>
+                            <span>JobSheets</span>
+                        </a>
+                        <div class="collapse" id="sidebarJobsheets">
+                            <ul class="list-unstyled ps-0">
+                                <li class="nav-item">
+                                    <a href="{{ route('jobsheets.create') }}" class="nav-link ms-4">
+                                        <i class="iconoir-plus-circle me-2"></i>
+                                        <span>Add New JobSheet</span>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="{{ route('jobsheets.index') }}" class="nav-link ms-4">
+                                        <i class="iconoir-list me-2"></i>
+                                        <span>JobSheet List</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
 
                     <!-- WhatsApp -->
                     <li class="nav-item">
-                        <a class="nav-link {!! Request::is('whatsapp*') ? 'active' : '' !!}" href="#sidebarWhatsapp" data-bs-toggle="collapse" role="button" aria-expanded="false" aria-controls="sidebarWhatsapp"> 
-                            <i class="iconoir-message-text menu-icon"></i>                                       
+                        <a class="nav-link {!! Request::is('whatsapp*') ? 'active' : '' !!}" href="#sidebarWhatsapp"
+                            data-bs-toggle="collapse" role="button" aria-expanded="false"
+                            aria-controls="sidebarWhatsapp">
+                            <i class="iconoir-message-text menu-icon"></i>
                             <span>WhatsApp</span>
                         </a>
                         <div class="collapse" id="sidebarWhatsapp">
@@ -95,7 +97,7 @@
                                         <i class="iconoir-calendar me-2"></i>
                                         <span>Festival Messages</span>
                                     </a>
-                                </li>                                
+                                </li>
                             </ul>
                         </div>
                     </li>
