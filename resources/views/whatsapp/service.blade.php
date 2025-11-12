@@ -139,6 +139,6 @@
 <script src="{{ asset('assets/libs/quill/quill.js') }}"></script>
 
 <!-- Include WhatsApp Scripts -->
-@include('whatsapp.scripts.whatsapp')
+@include('whatsapp.scripts.service_script')
 
 @endsection

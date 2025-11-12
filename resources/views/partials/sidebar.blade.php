@@ -17,8 +17,7 @@
     <div class="startbar-menu">
         <div class="startbar-collapse" id="startbarCollapse" data-simplebar>
             <div class="d-flex align-items-start flex-column w-100">
-                <ul class="navbar-nav mb-auto w-100">
-                    <li class="menu-label mt-2"><span>Navigation</span></li>
+                <ul class="navbar-nav mb-auto w-100">           
 
                     <!-- Dashboard -->
                     <li class="nav-item">
