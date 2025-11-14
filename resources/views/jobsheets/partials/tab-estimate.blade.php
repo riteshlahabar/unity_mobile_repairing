@@ -25,25 +25,32 @@
             </div>
         </div>
 
-        <!-- Remarks/Notes -->
+        <!-- Notes (Single text field) -->
         <div class="row">
             <div class="col-md-12">
                 <div class="mb-3">
-                    <label for="remarks" class="form-label">Remarks/Notes</label>
-                    <textarea class="form-control" id="remarks" name="remarks" rows="3" placeholder="Any additional notes..."></textarea>
+                    <label for="notes" class="form-label">Notes</label>
+                    <input type="text" class="form-control" id="notes" name="notes" placeholder="Enter any additional notes...">
                 </div>
             </div>
         </div>
 
-        <!-- Terms & Conditions -->
+        <!-- Remarks (Readonly from database) -->
+        <div class="row">
+            <div class="col-md-12">
+                <div class="mb-3">
+                    <label for="remarks" class="form-label">Remarks</label>
+                    <textarea class="form-control bg-light" id="remarks" name="remarks" rows="4" readonly style="overflow-y: auto;">{{ $remarks ?? '' }}</textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Terms & Conditions (Readonly from database) -->
         <div class="row">
             <div class="col-md-12">
                 <div class="mb-3">
                     <label for="terms_conditions" class="form-label">Terms & Conditions</label>
-                    <textarea class="form-control" id="terms_conditions" name="terms_conditions" rows="4" placeholder="Enter terms and conditions...">1. Warranty period: 30 days from delivery date
-2. Data backup is customer's responsibility
-3. Any liquid damage voids warranty
-4. Payment must be made at time of delivery</textarea>
+                    <textarea class="form-control bg-light" id="terms_conditions" name="terms_conditions" rows="4" readonly style="overflow-y: auto;">{{ $termsConditions ?? '' }}</textarea>
                 </div>
             </div>
         </div>
@@ -54,7 +61,7 @@
                 <div class="form-check mb-3">
                     <input class="form-check-input" type="checkbox" id="jobsheet_required" name="jobsheet_required" value="1">
                     <label class="form-check-label" for="jobsheet_required">
-                        <strong>Without jobsheet mobile not obtained.</strong>
+                        <strong>I agree to the terms and conditions.</strong>
                     </label>
                 </div>
             </div>

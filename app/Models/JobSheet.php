@@ -38,9 +38,7 @@ class JobSheet extends Model
         'estimated_cost',
         'advance',
         'balance',
-        'remarks',
-        'terms_conditions',
-        'jobsheet_required',
+        'notes',        
         'status',
     ];
 

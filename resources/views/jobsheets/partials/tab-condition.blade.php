@@ -58,13 +58,10 @@
                         <button type="button" class="btn btn-outline-primary dropdown-toggle text-start" data-bs-toggle="dropdown">
                             Select Technician <i class="las la-angle-down float-end"></i>
                         </button>
-                        <div class="dropdown-menu w-100">
-                            <a class="dropdown-item" href="#" onclick="selectOptionWithValidation(event, 'technician', 'Technician 1')">Technician 1</a>
-                            <a class="dropdown-item" href="#" onclick="selectOptionWithValidation(event, 'technician', 'Technician 2')">Technician 2</a>
-                            <a class="dropdown-item" href="#" onclick="selectOptionWithValidation(event, 'technician', 'Technician 3')">Technician 3</a>
-                            <a class="dropdown-item" href="#" onclick="selectOptionWithValidation(event, 'technician', 'Technician 4')">Technician 4</a>
+                        <div class="dropdown-menu w-100" id="technicianDropdown">
+                            <!-- Technicians will be loaded here dynamically -->
                             <div class="dropdown-divider"></div>
-                            <a class="dropdown-item text-primary" href="#"><i class="iconoir-plus me-2"></i>Add New Technician</a>
+                            <a class="dropdown-item text-primary" href="#" data-bs-toggle="modal" data-bs-target="#addTechnicianModal"><i class="iconoir-plus me-2"></i>Add New Technician</a>
                         </div>
                     </div>
                     <input type="hidden" id="technician" name="technician" required>
@@ -103,3 +100,28 @@
         <button type="button" class="btn btn-primary float-end" id="conditionNextBtn" onclick="nextTab('estimate-tab')" disabled>Next</button>
     </div>
 </div>
+
+<!-- Add Technician Modal -->
+<div class="modal fade" id="addTechnicianModal" tabindex="-1" aria-labelledby="addTechnicianModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addTechnicianModalLabel">Add New Technician</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addTechnicianForm">
+                    <div class="mb-3">
+                        <label for="technicianName" class="form-label">Technician Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="technicianName" name="technicianName" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveTechnician()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+

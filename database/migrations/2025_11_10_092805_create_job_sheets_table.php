@@ -51,9 +51,7 @@ return new class extends Migration
             $table->decimal('estimated_cost', 10, 2);
             $table->decimal('advance', 10, 2)->default(0);
             $table->decimal('balance', 10, 2)->default(0);
-            $table->text('remarks')->nullable();
-            $table->text('terms_conditions')->nullable();
-            $table->boolean('jobsheet_required')->default(false);
+            $table->text('notes')->nullable();            
             
             // Status
             $table->enum('status', ['in_progress', 'completed', 'delivered'])->default('in_progress');
