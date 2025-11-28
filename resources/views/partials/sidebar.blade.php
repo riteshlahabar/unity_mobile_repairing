@@ -102,12 +102,43 @@
                     </li>
 
                     <!-- Reports -->
-                    <li class="nav-item">
-                        <a class="nav-link {!! Request::is('reports') ? 'active' : '' !!}" href="/reports">
-                            <i class="iconoir-reports menu-icon"></i>
-                            <span>Reports</span>
-                        </a>
-                    </li>
+                   <li class="nav-item">
+    <a class="nav-link {!! Request::is('reports*') ? 'active' : '' !!}" 
+       href="#reportsMenu" 
+       data-bs-toggle="collapse"
+       role="button"
+       aria-expanded="{!! Request::is('reports*') ? 'true' : 'false' !!}">
+        <i class="iconoir-reports menu-icon"></i>
+        <span>Reports</span>
+    </a>
+
+    <div class="collapse {!! Request::is('reports*') ? 'show' : '' !!}" id="reportsMenu">
+        <!-- Use the same style as WhatsApp: list-unstyled + ps-0 -->
+        <ul class="list-unstyled ps-0">
+            <!-- General Report (uses same classes as WhatsApp submenu links) -->
+            <li class="nav-item">
+                <a class="nav-link ms-4 {!! Request::is('reports') || Request::is('reports/general') ? 'active' : '' !!}" 
+                   href="{{ route('reports.index') }}">
+                    <i class="iconoir-stats-report menu-icon"></i>
+                    <span>General Report</span>
+                </a>
+            </li>
+
+            <!-- Revenue -->
+            <li class="nav-item">
+                <a class="nav-link ms-4 {!! Request::is('reports/revenue') ? 'active' : '' !!}" 
+                   href="{{ route('reports.revenue') }}">
+                    <i class="iconoir-wallet menu-icon"></i>
+                    <span>Revenue</span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</li>
+
+
+
+                    
 
                     <!-- Settings -->
                     <li class="nav-item">

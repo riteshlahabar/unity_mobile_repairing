@@ -10,11 +10,34 @@ return new class extends Migration
     {
         Schema::create('festival_messages', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('customer_id')->constrained()->onDelete('cascade');
-            $table->text('message');
-            $table->enum('status', ['sent', 'failed', 'pending'])->default('pending');
-            $table->text('response')->nullable();
+            
+            // Campaign identifier
+            $table->string('campaign_name')->nullable(); // "Diwali 2025", "New Year"
+            
+            // Date when campaign was sent
+            $table->dateTime('sent_date')->nullable();
+            
+            // Message content
+            $table->longText('message');
+            
+            // Campaign statistics
+            $table->unsignedInteger('total_customers')->default(0);
+            $table->unsignedInteger('message_sent')->default(0);
+            $table->unsignedInteger('failed_messages')->default(0);
+            
+            // Overall status
+            $table->enum('status', ['pending', 'processing', 'completed', 'failed'])->default('pending');
+            
+            // Additional response/error details
+            $table->json('response_data')->nullable(); // WhatsApp API response
+            
+            // Timestamps
             $table->timestamps();
+            
+            // Indexes for performance
+            $table->index(['sent_date']);
+            $table->index(['status']);
+            $table->index(['created_at']);
         });
     }
 

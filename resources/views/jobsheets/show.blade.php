@@ -268,8 +268,9 @@
             @if($jobSheet->devicePhotos && $jobSheet->devicePhotos->count() > 0)
             <div class="card">
                 <div class="card-header">
-                    <h5 class="card-title mb-0"><i class="las la-images me-2"></i>Device Photos
-                        ({{ $jobSheet->devicePhotos->count() }})</h5>
+                    <h5 class="card-title mb-0">
+                        <i class="las la-images me-2"></i>Device Photos ({{ $jobSheet->devicePhotos->count() }})
+                    </h5>
                 </div>
                 <div class="card-body">
                     <div class="row g-3">
@@ -277,22 +278,12 @@
                         <div class="col-md-3 col-sm-6">
                             @php
                             $photoPath = $photo->photo_path;
-                            // Check different possible paths
-                            if (file_exists(public_path($photoPath))) {
-                            $imageUrl = asset($photoPath);
-                            } elseif (file_exists(storage_path('app/public/' . $photoPath))) {
                             $imageUrl = asset('storage/' . $photoPath);
-                            } elseif (file_exists(storage_path('app/public/device_photos/' . $photoPath))) {
-                            $imageUrl = asset('storage/device_photos/' . $photoPath);
-                            } else {
-                            $imageUrl = asset('storage/' . $photoPath);
-                            }
                             @endphp
                             <a href="{{ $imageUrl }}" target="_blank">
                                 <img src="{{ $imageUrl }}" alt="Device Photo {{ $loop->iteration }}"
-                                    class="img-fluid rounded border"
-                                    style="width: 100%; height: 200px; object-fit: cover;"
-                                    onerror="this.src='{{ asset('assets/images/no-image.png') }}'; this.onerror=null;">
+                                    class="img-fluid rounded border" style="width:100%;height:180px;object-fit:cover"
+                                    onerror="this.src='{{ asset('assets/images/no-image.png') }}';this.onerror=null;">
                             </a>
                         </div>
                         @endforeach
@@ -355,136 +346,114 @@
             </div>
 
             <!-- Cost Details -->
-<div class="card">
-    <div class="card-header">
-        <h5 class="card-title mb-0"><i class="las la-rupee-sign me-2"></i>Cost Details</h5>
-    </div>
-    <div class="card-body">
-        <table class="table table-borderless">
-            <tr>
-                <td class="fw-bold" width="30%">Estimated Cost:</td>
-                <td class="text-end"><h5 class="mb-0">₹{{ number_format($jobSheet->estimated_cost, 2) }}</h5></td>
-            </tr>
-            <tr>
-                <td class="fw-bold">Advance Paid:</td>
-                <td class="text-end"><h5 class="mb-0 text-success">₹{{ number_format($jobSheet->advance, 2) }}</h5></td>
-            </tr>
-            @if($jobSheet->status != 'delivered')
-            <tr>
-                <td class="fw-bold">Balance:</td>
-                <td class="text-end"><h5 class="mb-0 text-warning">₹{{ number_format($jobSheet->balance, 2) }}</h5></td>
-            </tr>
-            @endif
-            @if($jobSheet->status == 'delivered')
-                @if($jobSheet->discount > 0)
-                <tr>
-                    <td class="fw-bold">Discount:</td>
-                    <td class="text-end"><h5 class="mb-0 text-danger">- ₹{{ number_format($jobSheet->discount, 2) }}</h5></td>
-                </tr>
-                <tr class="border-top">
-                    <td class="fw-bold">Final Amount Paid:</td>
-                    <td class="text-end"><h4 class="mb-0 text-primary">₹{{ number_format($jobSheet->final_amount ?? $jobSheet->balance, 2) }}</h4></td>
-                </tr>
-                @else
-                <tr class="border-top">
-                    <td class="fw-bold" colspan="2" class="text-center">
-                        <span class="badge bg-success fs-6 px-3 py-2">
-                            <i class="iconoir-check-circle me-2"></i>
-                            <strong>Balance ₹{{ number_format($jobSheet->balance, 2) }} Paid Successfully</strong>
-                        </span>
-                    </td>
-                </tr>
-                @endif
-            @endif
-        </table>
-    </div>
-</div>
-
-<!-- Remarks & Terms -->
-<div class="card">
-    <div class="card-header">
-        <h5 class="card-title mb-0"><i class="las la-file-alt me-2"></i>Additional Information</h5>
-    </div>
-    <div class="card-body">
-        @if($jobSheet->remarks)
-        <div class="mb-3">
-            <h6>Remarks:</h6>
-            <p class="text-muted mb-0">{{ $jobSheet->remarks }}</p>
-        </div>
-        @endif
-        
-        @if($jobSheet->terms_conditions)
-        <div class="mb-3">
-            <h6>Terms & Conditions:</h6>
-            <div class="alert alert-dark mb-0">
-                {{ $jobSheet->terms_conditions }}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="las la-rupee-sign me-2"></i>Cost Details</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-borderless">
+                        <tr>
+                            <td class="fw-bold" width="30%">Estimated Cost:</td>
+                            <td class="text-end">
+                                <h5 class="mb-0">₹{{ number_format($jobSheet->estimated_cost, 2) }}</h5>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="fw-bold">Advance Paid:</td>
+                            <td class="text-end">
+                                <h5 class="mb-0 text-success">₹{{ number_format($jobSheet->advance, 2) }}</h5>
+                            </td>
+                        </tr>
+                        @if($jobSheet->status != 'delivered')
+                        <tr>
+                            <td class="fw-bold">Balance:</td>
+                            <td class="text-end">
+                                <h5 class="mb-0 text-warning">₹{{ number_format($jobSheet->balance, 2) }}</h5>
+                            </td>
+                        </tr>
+                        @endif
+                        @if($jobSheet->status == 'delivered')
+                        @if($jobSheet->discount > 0)
+                        <tr>
+                            <td class="fw-bold">Discount:</td>
+                            <td class="text-end">
+                                <h5 class="mb-0 text-danger">- ₹{{ number_format($jobSheet->discount, 2) }}</h5>
+                            </td>
+                        </tr>
+                        <tr class="border-top">
+                            <td class="fw-bold">Final Amount Paid:</td>
+                            <td class="text-end">
+                                <h4 class="mb-0 text-primary">
+                                    ₹{{ number_format($jobSheet->final_amount ?? $jobSheet->balance, 2) }}</h4>
+                            </td>
+                        </tr>
+                        @else
+                        <tr class="border-top">
+                            <td class="fw-bold" colspan="2" class="text-center">
+                                <span class="badge bg-success fs-6 px-3 py-2">
+                                    <i class="iconoir-check-circle me-2"></i>
+                                    <strong>Balance ₹{{ number_format($jobSheet->balance, 2) }} Paid
+                                        Successfully</strong>
+                                </span>
+                            </td>
+                        </tr>
+                        @endif
+                        @endif
+                    </table>
+                </div>
             </div>
-        </div>
-        @endif
 
-        <div class="form-check mt-3">
-            <input class="form-check-input" type="checkbox" 
-                   id="jobsheetRequired" 
-                   {{ $jobSheet->jobsheet_required ? 'checked' : '' }} 
-                   disabled>
-            <label class="form-check-label fw-bold" for="jobsheetRequired">
-                Without jobsheet mobile not obtained.
-            </label>
-        </div>
-    </div>
-</div>
-
-<!-- Action Buttons -->
-<div class="card">
-    <div class="card-body">
-        <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route('dashboard') }}" class="btn btn-secondary">
-                <i class="las la-home me-1"></i>Back to Dashboard
-            </a>
-            <a href="{{ route('jobsheets.index') }}" class="btn btn-secondary">
-                <i class="las la-arrow-left me-1"></i>Back to JobSheet List
-            </a>
-            <a href="{{ route('jobsheets.edit', $jobSheet->jobsheet_id) }}" class="btn btn-primary">
-                <i class="las la-edit me-1"></i>Edit JobSheet
-            </a>
-            <a href="{{ route('jobsheets.downloadPDF', $jobSheet->jobsheet_id) }}" class="btn btn-success">
-                <i class="las la-download me-1"></i>Download PDF
-            </a>
-            <button type="button" class="btn btn-info" onclick="window.print()">
-                <i class="las la-print me-1"></i>Print JobSheet
-            </button>
-            
-            @if($jobSheet->status == 'in_progress')
-            <form action="{{ route('jobsheets.markComplete', $jobSheet->jobsheet_id) }}" method="POST" style="display: inline;">
-                @csrf
-                <button type="submit" class="btn btn-warning">
-                    <i class="las la-check-circle me-1"></i>Mark Complete
-                </button>
-            </form>
+            <!-- Notes Section -->
+            @if($jobSheet->notes)
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="card-title mb-0"><i class="las la-sticky-note me-2"></i>Notes</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ $jobSheet->notes }}</p>
+                </div>
+            </div>
             @endif
-            
-            @if($jobSheet->status == 'completed')
-            <button type="button" class="btn btn-warning" onclick="alert('Use dashboard to mark as delivered')">
-                <i class="las la-shipping-fast me-1"></i>Mark Delivered
-            </button>
-            @endif
-        </div>
-    </div>
-</div>
+
+            <!-- Action Buttons -->
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex gap-2 flex-wrap">
+                        <a href="{{ route('dashboard') }}" class="btn btn-secondary">
+                            <i class="las la-home me-1"></i>Back to Dashboard
+                        </a>
+                        <a href="{{ route('jobsheets.index') }}" class="btn btn-secondary">
+                            <i class="las la-arrow-left me-1"></i>Back to JobSheet List
+                        </a>
+                        <a href="{{ route('jobsheets.edit', $jobSheet->jobsheet_id) }}" class="btn btn-primary">
+                            <i class="las la-edit me-1"></i>Edit JobSheet
+                        </a>
+                        <a href="{{ route('jobsheets.downloadPDF', $jobSheet->jobsheet_id) }}" class="btn btn-success">
+                            <i class="las la-download me-1"></i>Download PDF
+                        </a>
+
+                        <a href="{{ route('jobsheets.printPDF', $jobSheet->jobsheet_id) }}" class="btn btn-info"
+                            target="_blank">
+                            <i class="las la-print me-1"></i>Print JobSheet
+                        </a>
+                       
+                    </div>
+                </div>
+            </div>
 
 
-<style>
-@media print {
-    .card {
-        page-break-inside: avoid;
-    }
+            <style>
+            @media print {
+                .card {
+                    page-break-inside: avoid;
+                }
 
-    .btn,
-    .breadcrumb,
-    .page-title-box {
-        display: none !important;
-    }
-}
-</style>
+                .btn,
+                .breadcrumb,
+                .page-title-box {
+                    display: none !important;
+                }
+            }
+            </style>
 
-@endsection
+            @endsection

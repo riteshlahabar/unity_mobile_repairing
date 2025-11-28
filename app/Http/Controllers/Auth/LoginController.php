@@ -3,44 +3,84 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Services\AuthenticationService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
+/**
+ * Login Controller
+ * 
+ * Handles user authentication (login/logout)
+ * 
+ * @see \App\Services\AuthenticationService - Authentication business logic
+ * 
+ * Dependencies injected via constructor:
+ * - AuthenticationService $authService
+ */
 class LoginController extends Controller
 {
+    public function __construct(
+        protected AuthenticationService $authService
+    ) {}
+
+    /**
+     * Show the login form
+     * 
+     * @return \Illuminate\View\View
+     */
     public function showLoginForm()
     {
         return view('auth.admin-login');
     }
 
+    /**
+     * Handle login attempt
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     * @throws ValidationException
+     */
     public function login(Request $request)
     {
+        // Validate credentials
         $credentials = $request->validate([
-            'email' => ['required','email'],
+            'email' => ['required', 'email'],
             'password' => ['required'],
         ]);
 
+        // Get remember me preference
         $remember = $request->boolean('remember');
 
-        if (Auth::attempt($credentials, $remember)) {
-            $request->session()->regenerate();
+        // Attempt login
+        if ($this->authService->attemptLogin($credentials, $remember)) {
+            // Regenerate session for security
+            $this->authService->regenerateSession($request);
 
+            // Redirect to intended page or dashboard
             return redirect()->intended(route('dashboard'));
         }
 
+        // Login failed - throw validation exception
         throw ValidationException::withMessages([
             'email' => __('auth.failed'),
         ]);
     }
 
+    /**
+     * Handle logout
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function logout(Request $request)
     {
-        Auth::logout();
+        // Logout user
+        $this->authService->logout();
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        // Invalidate session and regenerate CSRF token
+        $this->authService->invalidateSession($request);
 
-        return redirect(route('admin.login'));
+        // Redirect to login page
+        return redirect()->route('admin.login');
     }
 }

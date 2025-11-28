@@ -86,5 +86,9 @@ class JobSheet extends Model
     }
     // Relationship with Device Photos
 
+public function warranty()
+{
+    return $this->hasOne(Warranty::class, 'jobsheet_id', 'id');
+}
 
 }

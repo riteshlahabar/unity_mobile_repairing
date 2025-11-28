@@ -152,6 +152,7 @@ function capturePattern() {
     const preview = document.getElementById('patternPreview');
     preview.innerHTML = `<img src="${imageData}" style="max-width: 100%; border-radius: 8px; border: 2px solid #4e73df;">`;
     const patternSequence = selectedDots.map((d, i) => i + 1).join(' → ');
-    alert(`Pattern captured successfully!\nSequence: ${patternSequence}`);
+    //alert(`Pattern captured successfully!\nSequence: ${patternSequence}`);
+    
 }
 </script>

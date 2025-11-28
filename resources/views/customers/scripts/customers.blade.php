@@ -1,8 +1,19 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.getElementById('customerForm');
-    const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-    const existingCustomerModal = new bootstrap.Modal(document.getElementById('existingCustomerModal'));
+
+    let successModal = null;
+    const successModalEl = document.getElementById('successModal');
+    if (successModalEl) {
+        successModal = new bootstrap.Modal(successModalEl);
+    }
+
+    let existingCustomerModal = null;
+    const existingCustomerModalEl = document.getElementById('existingCustomerModal');
+    if (existingCustomerModalEl) {
+        existingCustomerModal = new bootstrap.Modal(existingCustomerModalEl);
+    }
+
     const resetBtn = document.getElementById('resetBtn');
     const contactNoField = document.getElementById('contact_no');
     let checkTimeout = null;
@@ -55,16 +66,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Show existing customer modal
+    // Show existing customer modal safely
     function showExistingCustomerModal(customer) {
+        if (!existingCustomerModal) return;
+
         document.getElementById('existing_customer_id').textContent = customer.customer_id;
         document.getElementById('existing_customer_name').textContent = customer.full_name;
         document.getElementById('existing_customer_contact').textContent = customer.contact_no;
         document.getElementById('existing_customer_address').textContent = customer.address;
         
-        // Set jobsheet creation link with customer data
         const createJobSheetLink = document.getElementById('createJobSheetExistingLink');
-        createJobSheetLink.href = '{{ route("jobsheets.create") }}?customer_id=' + customer.customer_id + '&customer_name=' + encodeURIComponent(customer.full_name);
+        if (createJobSheetLink) {
+            createJobSheetLink.href = '{{ route("jobsheets.create") }}?customer_id=' + customer.customer_id + '&customer_name=' + encodeURIComponent(customer.full_name);
+        }
         
         existingCustomerModal.show();
     }
@@ -76,8 +90,12 @@ document.addEventListener('DOMContentLoaded', function() {
             input.classList.remove('is-invalid');
             input.classList.remove('is-valid');
         });
-        document.getElementById('customer_id_display').classList.add('d-none');
-        document.getElementById('submitBtn').disabled = false;
+        const customerIdDisplay = document.getElementById('customer_id_display');
+        if (customerIdDisplay) {
+            customerIdDisplay.classList.add('d-none');
+        }
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = false;
         existingCustomer = null;
     });
 
@@ -99,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let isValid = true;
 
-        // Validate Contact Number (FIRST)
+        // Validate Contact Number
         const contactNo = document.getElementById('contact_no');
         const mobilePattern = /^[6-9][0-9]{9}$/;
         if (!mobilePattern.test(contactNo.value.trim())) {
@@ -135,72 +153,101 @@ document.addEventListener('DOMContentLoaded', function() {
             isValid = false;
         }
 
-        // If form is valid, submit via AJAX
-        if (isValid) {
-            const submitBtn = document.getElementById('submitBtn');
-            submitBtn.disabled = true;
-            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Submitting...';
+        if (!isValid) return;
 
-            // Prepare form data
-            const formData = new FormData(form);
+        const submitBtn = document.getElementById('submitBtn');
+        submitBtn.disabled = true;
+        
+        const isEditMode = form.hasAttribute('data-customer-id') && form.getAttribute('data-customer-id').trim() !== '';
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>' + (isEditMode ? 'Updating...' : 'Submitting...');
 
-            // AJAX Request
-            fetch('{{ route("customers.store") }}', {
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Accept': 'application/json',
-                    'X-Requested-With': 'XMLHttpRequest'
-                },
-                body: formData
-            })
-            .then(response => {
-                const contentType = response.headers.get("content-type");
-                if (!contentType || !contentType.includes("application/json")) {
-                    throw new TypeError("Server didn't return JSON!");
+        const formData = new FormData(form);
+
+        // ✅ FIX: For PUT requests, always send as POST with _method=PUT
+        const url = isEditMode 
+            ? '{{ url("customers") }}/' + form.getAttribute('data-customer-id') 
+            : '{{ route("customers.store") }}';
+
+        // Always use POST method, Laravel will handle _method field for spoofing
+        fetch(url, {
+            method: 'POST',  // ✅ Changed from PUT to POST
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest'
+            },
+            body: formData  // FormData will include the _method=PUT field
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(err => Promise.reject(err));
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                // Show Customer ID in form (only for create)
+                if (!isEditMode) {
+                    const customerIdDisplay = document.getElementById('customer_id_display');
+                    if (customerIdDisplay) {
+                        customerIdDisplay.classList.remove('d-none');
+                    }
+                    const displayCustomerId = document.getElementById('display_customer_id');
+                    if (displayCustomerId) {
+                        displayCustomerId.textContent = data.customer_id;
+                    }
                 }
-                return response.json();
-            })
-            .then(data => {
-                if (data.success) {
-                    // Show Customer ID in form
-                    document.getElementById('display_customer_id').textContent = data.customer_id;
-                    document.getElementById('customer_id_display').classList.remove('d-none');
 
-                    // Show Customer ID in modal
-                    document.getElementById('modal_customer_id').textContent = data.customer_id;
-                    
-                    // Set jobsheet creation link with customer data
-                    const createJobSheetLink = document.getElementById('createJobSheetLink');
+                // Show modal_customer_id if modal present
+                const modalCustomerIdSpan = document.getElementById('modal_customer_id');
+                if (modalCustomerIdSpan) {
+                    modalCustomerIdSpan.textContent = data.customer_id;
+                }
+                
+                // Update createJobSheetLink href
+                const createJobSheetLink = document.getElementById('createJobSheetLink');
+                if (createJobSheetLink) {
                     createJobSheetLink.href = '{{ route("jobsheets.create") }}?customer_id=' + data.customer_id + '&customer_name=' + encodeURIComponent(data.customer.full_name);
+                }
 
-                    // Reset submit button
-                    submitBtn.innerHTML = '<i class="iconoir-check-circle me-1"></i>Submit';
-
-                    // Show success modal
+                if (successModal) {
                     successModal.show();
-                    
-                } else {
-                    throw new Error(data.message || 'Unknown error occurred');
                 }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                
-                if (error.errors && error.errors.contact_no) {
-                    alert('This contact number is already registered!');
-                    contactNo.classList.add('is-invalid');
-                } else {
-                    alert('Error: ' + error.message);
-                }
-                
+
                 submitBtn.disabled = false;
-                submitBtn.innerHTML = '<i class="iconoir-check-circle me-1"></i>Submit';
-            });
-        }
+                submitBtn.innerHTML = '<i class="iconoir-check-circle me-1"></i>' + (isEditMode ? 'Update' : 'Submit');
+
+                if (!isEditMode) {
+                    form.reset();
+                }
+            } else {
+                throw new Error(data.message || 'Unknown error occurred');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+
+            // Handle validation errors
+            if (error.errors) {
+                let messages = [];
+                for (const key in error.errors) {
+                    messages.push(...error.errors[key]);
+                    const input = document.querySelector(`[name="${key}"]`);
+                    if (input) input.classList.add('is-invalid');
+                }
+                alert('Validation errors:\n' + messages.join('\n'));
+            } else if (error.message) {
+                alert('Error: ' + error.message);
+            } else {
+                alert('An error occurred. Please try again.');
+            }
+
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="iconoir-check-circle me-1"></i>' + (isEditMode ? 'Update' : 'Submit');
+        });
     });
 
-    // Auto-copy contact to WhatsApp
+    // Auto-copy contact to WhatsApp if WhatsApp is empty
     document.getElementById('contact_no').addEventListener('blur', function() {
         const whatsappField = document.getElementById('whatsapp_no');
         if (whatsappField.value === '' && this.value !== '') {
@@ -211,9 +258,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Only allow numbers for phone fields
     const numberInputs = ['contact_no', 'alternate_no', 'whatsapp_no'];
     numberInputs.forEach(inputId => {
-        document.getElementById(inputId).addEventListener('input', function(e) {
-            this.value = this.value.replace(/[^0-9]/g, '');
-        });
+        const input = document.getElementById(inputId);
+        if (input) {
+            input.addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^0-9]/g, '');
+            });
+        }
     });
 });
+
+
 </script>

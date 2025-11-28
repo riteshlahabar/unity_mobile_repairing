@@ -2,158 +2,200 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\MobileDetailService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
+use App\Imports\BulkMasterImport;
+use Maatwebsite\Excel\Facades\Excel;
 
+/**
+ * Mobile Detail Controller
+ * 
+ * Handles mobile device details (companies, models, colors, series, technicians)
+ * 
+ * @see \App\Repositories\Contracts\MobileDetailRepositoryInterface - Data access
+ * @see \App\Services\MobileDetailService - Business logic
+ * 
+ * Dependencies injected via constructor:
+ * - MobileDetailService $service
+ */
 class MobileDetailController extends Controller
 {
-    // Store Company
-public function storeCompany(Request $request)
-{
-    $request->validate(['company' => 'required|string|max:255']);
+    public function __construct(
+        protected MobileDetailService $service
+    ) {}
 
-    $exists = DB::table('companies')->whereRaw('LOWER(name) = ?', [strtolower($request->company)])->exists();
+    // ========================================
+    // STORE METHODS
+    // ========================================
 
-    if ($exists) {
-        return response()->json(['success' => false, 'message' => 'Company already exists']);
+    /**
+     * Store a new company
+     */
+    public function storeCompany(Request $request)
+    {
+        $request->validate(['company' => 'required|string|max:255']);
+        
+        $result = $this->service->storeEntity('company', $request->company);
+        return response()->json($result);
     }
 
-    DB::table('companies')->insert([
-        'name' => $request->company,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
-
-    return response()->json(['success' => true, 'message' => 'Company added successfully']);
-}
-
-// Store Model
-public function storeModel(Request $request)
-{
-    $request->validate(['model' => 'required|string|max:255']);
-
-    $exists = DB::table('models')->whereRaw('LOWER(name) = ?', [strtolower($request->model)])->exists();
-
-    if ($exists) {
-        return response()->json(['success' => false, 'message' => 'Model already exists']);
+    /**
+     * Store a new model
+     */
+    public function storeModel(Request $request)
+    {
+        $request->validate(['model' => 'required|string|max:255']);
+        
+        $result = $this->service->storeEntity('model', $request->model);
+        return response()->json($result);
     }
 
-    DB::table('models')->insert([
-        'name' => $request->model,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
-
-    return response()->json(['success' => true, 'message' => 'Model added successfully']);
-}
-
-// Store Color
-public function storeColor(Request $request)
-{
-    $request->validate(['color' => 'required|string|max:255']);
-
-    $exists = DB::table('colors')->whereRaw('LOWER(name) = ?', [strtolower($request->color)])->exists();
-
-    if ($exists) {
-        return response()->json(['success' => false, 'message' => 'Color already exists']);
+    /**
+     * Store a new color
+     */
+    public function storeColor(Request $request)
+    {
+        $request->validate(['color' => 'required|string|max:255']);
+        
+        $result = $this->service->storeEntity('color', $request->color);
+        return response()->json($result);
     }
 
-    DB::table('colors')->insert([
-        'name' => $request->color,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
-
-    return response()->json(['success' => true, 'message' => 'Color added successfully']);
-}
-
-// Store Series
-public function storeSeries(Request $request)
-{
-    $request->validate(['series' => 'required|string|max:255']);
-
-    $exists = DB::table('series')->whereRaw('LOWER(name) = ?', [strtolower($request->series)])->exists();
-
-    if ($exists) {
-        return response()->json(['success' => false, 'message' => 'Series already exists']);
+    /**
+     * Store a new series
+     */
+    public function storeSeries(Request $request)
+    {
+        $request->validate(['series' => 'required|string|max:255']);
+        
+        $result = $this->service->storeEntity('series', $request->series);
+        return response()->json($result);
     }
 
-    DB::table('series')->insert([
-        'name' => $request->series,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
-
-    return response()->json(['success' => true, 'message' => 'Series added successfully']);
-}
-
-// Store Technician
-public function storeTechnician(Request $request)
-{
-    $request->validate(['technician' => 'required|string|max:255']);
-
-    $exists = DB::table('technicians')->whereRaw('LOWER(name) = ?', [strtolower($request->technician)])->exists();
-
-    if ($exists) {
-        return response()->json(['success' => false, 'message' => 'Technician already exists']);
+    /**
+     * Store a new technician
+     */
+    public function storeTechnician(Request $request)
+    {
+        $request->validate(['technician' => 'required|string|max:255']);
+        
+        $result = $this->service->storeEntity('technician', $request->technician);
+        return response()->json($result);
     }
 
-    DB::table('technicians')->insert([
-        'name' => $request->technician,
-        'created_at' => now(),
-        'updated_at' => now(),
-    ]);
+    // ========================================
+    // FETCH METHODS
+    // ========================================
 
-    return response()->json(['success' => true, 'message' => 'Technician added successfully']);
-}
-
-    // Fetch Companies
+    /**
+     * Fetch all companies
+     */
     public function fetchCompanies()
     {
-        $companies = DB::table('companies')
-            ->orderBy('name')
-            ->pluck('name');
-
+        $companies = $this->service->fetchEntities('company');
         return response()->json($companies);
     }
 
-    // Fetch Models
+    /**
+     * Fetch all models
+     */
     public function fetchModels()
     {
-        $models = DB::table('models')
-            ->orderBy('name')
-            ->pluck('name');
-
+        $models = $this->service->fetchEntities('model');
         return response()->json($models);
     }
 
-    // Fetch Colors
+    /**
+     * Fetch all colors
+     */
     public function fetchColors()
     {
-        $colors = DB::table('colors')
-            ->orderBy('name')
-            ->pluck('name');
-
+        $colors = $this->service->fetchEntities('color');
         return response()->json($colors);
     }
 
-    // Fetch Series
+    /**
+     * Fetch all series
+     */
     public function fetchSeries()
     {
-        $series = DB::table('series')
-            ->orderBy('name')
-            ->pluck('name');
-
+        $series = $this->service->fetchEntities('series');
         return response()->json($series);
     }
 
-    // Fetch Technicians
+    /**
+     * Fetch all technicians
+     */
     public function fetchTechnicians()
     {
-        $technicians = DB::table('technicians')
-            ->orderBy('name')
-            ->pluck('name');
-
+        $technicians = $this->service->fetchEntities('technician');
         return response()->json($technicians);
     }
+    
+    public function updateCompany(Request $request)
+{
+    $request->validate(['old_company' => 'required|string', 'company' => 'required|string|max:255']);
+
+    // Example update logic:
+    $updated = \DB::table('companies')
+        ->where('name', $request->old_company)
+        ->update(['name' => $request->company]);
+
+    return response()->json(['success' => (bool)$updated, 'updatedValue' => $request->company]);
+}
+
+public function updateModel(Request $request)
+{
+    $request->validate(['old_model' => 'required|string', 'model' => 'required|string|max:255']);
+    $updated = \DB::table('models')
+        ->where('name', $request->old_model)
+        ->update(['name' => $request->model]);
+    return response()->json(['success' => (bool)$updated, 'updatedValue' => $request->model]);
+}
+
+public function updateColor(Request $request)
+{
+    $request->validate(['old_color' => 'required|string', 'color' => 'required|string|max:255']);
+    $updated = \DB::table('colors')
+        ->where('name', $request->old_color)
+        ->update(['name' => $request->color]);
+    return response()->json(['success' => (bool)$updated, 'updatedValue' => $request->color]);
+}
+
+public function updateSeries(Request $request)
+{
+    $request->validate(['old_series' => 'required|string', 'series' => 'required|string|max:255']);
+    $updated = \DB::table('series')
+        ->where('name', $request->old_series)
+        ->update(['name' => $request->series]);
+    return response()->json(['success' => (bool)$updated, 'updatedValue' => $request->series]);
+}
+
+public function updateTechnician(Request $request)
+{
+    $request->validate(['old_technician' => 'required|string', 'technician' => 'required|string|max:255']);
+    $updated = \DB::table('technicians')
+        ->where('name', $request->old_technician)
+        ->update(['name' => $request->technician]);
+    return response()->json(['success' => (bool)$updated, 'updatedValue' => $request->technician]);
+}
+
+public function bulkMasterUpload(Request $request)
+{
+    $request->validate([
+        'file' => 'required|file|mimes:xlsx,xls'
+    ]);
+
+    // Example using Laravel-Excel:
+    try {
+        $import = new \App\Imports\BulkMasterImport;
+        \Maatwebsite\Excel\Facades\Excel::import($import, $request->file('file'));
+
+        return response()->json(['success' => true, 'message' => 'Data imported!']);
+    } catch (\Exception $e) {
+        return response()->json(['success' => false, 'message' => $e->getMessage()]);
+    }
+}
+
+
 }

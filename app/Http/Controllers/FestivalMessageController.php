@@ -2,36 +2,57 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
-use App\Models\FestivalMessage;
-use App\Services\WhatsAppService;
+use App\Repositories\Contracts\FestivalMessageRepositoryInterface;
+use App\Services\FestivalMessageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Festival Message Controller
+ * 
+ * Handles bulk festival message sending to customers
+ * 
+ * @see \App\Repositories\Contracts\FestivalMessageRepositoryInterface - Data access
+ * @see \App\Services\FestivalMessageService - Business logic
+ * 
+ * Dependencies injected via constructor:
+ * - FestivalMessageRepositoryInterface $repository
+ * - FestivalMessageService $service
+ */
 class FestivalMessageController extends Controller
 {
-    protected $whatsappService;
+    public function __construct(
+        protected FestivalMessageRepositoryInterface $repository,
+        protected FestivalMessageService $service
+    ) {}
 
-    public function __construct(WhatsAppService $whatsappService)
-    {
-        $this->whatsappService = $whatsappService;
-    }
-
-    // Show festival message page
+    /**
+     * Show festival message page with statistics
+     * 
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
-        $totalCustomers = Customer::count();
-        $sentMessages = FestivalMessage::where('status', 'sent')->count();
-        $failedMessages = FestivalMessage::where('status', 'failed')->count();
+        // Get dashboard stats
+        $stats = $this->service->getDashboardStats();
         
-        $messages = FestivalMessage::with('customer')
-            ->latest()
-            ->paginate(20);
+        // Get recent messages
+        $messages = $this->repository->getRecentMessages(20);
         
-        return view('festival.index', compact('totalCustomers', 'sentMessages', 'failedMessages', 'messages'));
+        return view('festival.index', [
+            'totalCustomers' => $stats['totalCustomers'],
+            'sentMessages' => $stats['sentMessages'],
+            'failedMessages' => $stats['failedMessages'],
+            'messages' => $messages,
+        ]);
     }
 
-    // Send festival messages
+    /**
+     * Send festival messages to customers
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function sendMessages(Request $request)
     {
         try {
@@ -41,46 +62,24 @@ class FestivalMessageController extends Controller
                 'customer_ids' => 'required_if:send_to,selected|array',
             ]);
 
-            $message = $validated['message'];
-            
-            // Get customers
-            if ($validated['send_to'] == 'all') {
-                $customers = Customer::all();
-            } else {
-                $customers = Customer::whereIn('id', $validated['customer_ids'])->get();
-            }
+            $result = $this->service->sendFestivalMessages(
+                $validated['message'],
+                $validated['send_to'],
+                $validated['customer_ids'] ?? []
+            );
 
-            $successCount = 0;
-            $failCount = 0;
+            return response()->json($result);
 
-            foreach ($customers as $customer) {
-                // Send message via WhatsApp
-                $result = $this->whatsappService->sendMessage($customer->whatsapp_no, $message);
-
-                // Save to database
-                $festivalMessage = FestivalMessage::create([
-                    'customer_id' => $customer->id,
-                    'message' => $message,
-                    'status' => $result['success'] ? 'sent' : 'failed',
-                    'response' => json_encode($result),
-                ]);
-
-                if ($result['success']) {
-                    $successCount++;
-                } else {
-                    $failCount++;
-                }
-            }
-
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
-                'success' => true,
-                'message' => "Messages sent successfully! Success: {$successCount}, Failed: {$failCount}",
-                'success_count' => $successCount,
-                'fail_count' => $failCount,
-            ]);
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
 
         } catch (\Exception $e) {
             Log::error('Festival Message Send Error: ' . $e->getMessage());
+            
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
@@ -88,13 +87,14 @@ class FestivalMessageController extends Controller
         }
     }
 
-    // Get customers for selection
+    /**
+     * Get customers for selection (AJAX)
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function getCustomers()
     {
-        $customers = Customer::select('id', 'customer_id', 'full_name', 'contact_no', 'whatsapp_no')
-            ->orderBy('full_name')
-            ->get();
-        
+        $customers = $this->service->getCustomersForSelection();
         return response()->json($customers);
     }
 }

@@ -74,17 +74,21 @@
                                                 <i class="las la-ellipsis-v fs-20 text-muted"></i>
                                             </a>
                                             <div class="dropdown-menu dropdown-menu-end">
-                                                <a class="dropdown-item" href="{{ route('customers.show', $customer->customer_id) }}"><i class="las la-eye me-2"></i>View Details</a>
+                                                
+                                              {{--  <a class="dropdown-item" href="{{ route('customers.show', $customer->customer_id) }}"><i class="las la-eye me-2"></i>View Details</a> --}}
+                                                
                                                 <a class="dropdown-item" href="{{ route('customers.edit', $customer->customer_id) }}"><i class="las la-edit me-2"></i>Edit</a>
                                                 <a class="dropdown-item" href="{{ route('jobsheets.create') }}?customer_id={{ $customer->customer_id }}&customer_name={{ urlencode($customer->full_name) }}"><i class="las la-clipboard me-2"></i>Create JobSheet</a>
-                                                <div class="dropdown-divider"></div>
+                                              
+                                                {{-- <div class="dropdown-divider"></div>
                                                 <form action="{{ route('customers.destroy', $customer->customer_id) }}" method="POST" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this customer?');">
                                                     @csrf
                                                     @method('DELETE')
                                                     <button type="submit" class="dropdown-item text-danger" style="border: none; background: none; width: 100%; text-align: left;">
                                                         <i class="las la-trash me-2"></i>Delete
                                                     </button>
-                                                </form>
+                                                </form> --}}
+                                                
                                             </div>
                                         </div>
                                     </td>

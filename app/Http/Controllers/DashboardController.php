@@ -2,46 +2,72 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Customer;
-use App\Models\JobSheet;
+use App\Services\DashboardService;
 use Illuminate\Http\Request;
-use Carbon\Carbon;
 
+/**
+ * Dashboard Controller
+ * 
+ * Handles dashboard statistics and overview display
+ * 
+ * @see \App\Repositories\Contracts\DashboardRepositoryInterface - Data access
+ * @see \App\Services\DashboardService - Business logic
+ * 
+ * Dependencies injected via constructor:
+ * - DashboardService $service
+ */
 class DashboardController extends Controller
 {
+    public function __construct(
+        protected DashboardService $service
+    ) {}
+
+    /**
+     * Display dashboard with statistics
+     * 
+     * @return \Illuminate\View\View
+     */
     public function index()
     {
-        $today = Carbon::today();
+        // Get all dashboard statistics
+        $stats = $this->service->getDashboardStats();
 
-        // Total counts
-        $totalCustomers = Customer::count();
-        $totalJobSheets = JobSheet::count();
+        return view('dashboard.index', [
+            'totalCustomers' => $stats['totalCustomers'],
+            'totalJobSheets' => $stats['totalJobSheets'],
+            'inProgressCount' => $stats['inProgressCount'],
+            'completedCount' => $stats['completedCount'],
+            'deliveredTodayCount' => $stats['deliveredTodayCount'],
+            'newRequestCount' => $stats['newRequestCount'],
+            'recentJobSheets' => $stats['recentJobSheets'],
+        ]);
+    }
 
-        // Status counts
-        $inProgressCount = JobSheet::where('status', 'in_progress')->count();
-        $completedCount = JobSheet::where('status', 'completed')->count();
-        $deliveredTodayCount = JobSheet::where('status', 'delivered')
-            ->whereDate('updated_at', $today)
-            ->count();
+    /**
+     * Get dashboard stats as JSON (for AJAX/API)
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function stats()
+    {
+        $stats = $this->service->getSummaryCounts();
+        return response()->json($stats);
+    }
 
-        // New request (created today)
-        $newRequestCount = JobSheet::whereDate('created_at', $today)->count();
-
-        // Recent jobsheets ordered by status (In Progress → Completed → Delivered)
-        $recentJobSheets = JobSheet::with('customer')
-            ->orderByRaw("FIELD(status, 'in_progress', 'completed', 'delivered')")
-            ->latest()
-            ->take(20)
-            ->get();
-
-        return view('dashboard.index', compact(
-            'totalCustomers',
-            'totalJobSheets',
-            'inProgressCount',
-            'completedCount',
-            'deliveredTodayCount',
-            'newRequestCount',
-            'recentJobSheets'
-        ));
+    /**
+     * Get recent activity as JSON (for AJAX refresh)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function recentActivity(Request $request)
+    {
+        $limit = $request->input('limit', 20);
+        $activity = $this->service->getRecentActivity($limit);
+        
+        return response()->json([
+            'success' => true,
+            'data' => $activity
+        ]);
     }
 }

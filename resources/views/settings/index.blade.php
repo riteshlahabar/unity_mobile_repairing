@@ -31,13 +31,6 @@
                                 aria-selected="false">Terms and Conditions</a>
                             <a class="nav-link py-2" id="Remarks-tab" data-bs-toggle="tab" href="#Remarks" role="tab"
                                 aria-controls="Remarks" aria-selected="false">Remarks</a>
-                            <a class="nav-link py-2" id="LogoUpdate-tab" data-bs-toggle="tab" href="#LogoUpdate"
-                                role="tab" aria-controls="LogoUpdate" aria-selected="false">Logo</a>
-                            <a class="nav-link py-2" id="ProfilePictureUpdate-tab" data-bs-toggle="tab"
-                                href="#ProfilePictureUpdate" role="tab" aria-controls="ProfilePictureUpdate"
-                                aria-selected="false">Profile Picture</a>
-                            <a class="nav-link py-2" id="UnitySignature-tab" data-bs-toggle="tab" href="#UnitySignature"
-                                role="tab" aria-controls="UnitySignature" aria-selected="false">Unity Signature</a>
                             <a class="nav-link py-2" id="Security-tab" data-bs-toggle="tab" href="#Security" role="tab"
                                 aria-controls="Security" aria-selected="false">Security</a>
                         </div>
@@ -102,74 +95,6 @@
                                         placeholder="Enter remarks here...">{{ old('remarks', $setting->remarks ?? '') }}</textarea>
                                 </div>
                                 <button type="submit" class="btn btn-success float-end">Save Remarks</button>
-                            </form>
-                        </div>
-
-                        <!-- Logo Update -->
-                        <div class="tab-pane fade" id="LogoUpdate" role="tabpanel" aria-labelledby="LogoUpdate-tab">
-                            <form id="logoForm" enctype="multipart/form-data">
-                                @csrf
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Upload Logo</label>
-                                    <input type="file" name="logo" class="form-control" accept="image/*">
-                                </div>
-                                @if(!empty($setting->logo))
-                                <img id="logoImage" src="{{ asset('storage/' . $setting->logo) }}" alt="Logo"
-                                    style="max-width: 200px; margin-top:10px; display: block;">
-                                @else
-                                <img id="logoImage" src="" alt="Logo"
-                                    style="max-width: 200px; margin-top:10px; display: none;">
-                                @endif
-                                <button type="submit" class="btn btn-success float-end">Save Logo</button>
-                            </form>
-                        </div>
-
-                        <!-- Profile Picture Update -->
-                        <div class="tab-pane fade" id="ProfilePictureUpdate" role="tabpanel"
-                            aria-labelledby="ProfilePictureUpdate-tab">
-                            <form id="profilePictureForm" enctype="multipart/form-data">
-                                @csrf
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Upload Profile Picture</label>
-                                    <input type="file" name="profile_picture" class="form-control" accept="image/*">
-                                </div>
-                                @if(!empty($setting->profile_picture))
-                                <img id="profilePictureImage" src="{{ asset('storage/' . $setting->profile_picture) }}"
-                                    alt="Profile Picture" style="max-width: 200px; margin-top:10px; display: block;">
-                                @else
-                                <img id="profilePictureImage" src="" alt="Profile Picture"
-                                    style="max-width: 200px; margin-top:10px; display: none;">
-                                @endif
-
-                                <button type="submit" class="btn btn-success float-end">Save Profile Picture</button>
-                            </form>
-                        </div>
-
-                        <!-- Unity Signature -->
-                        <div class="tab-pane fade" id="UnitySignature" role="tabpanel"
-                            aria-labelledby="UnitySignature-tab">
-                            <form id="unitySignatureForm" enctype="multipart/form-data">
-                                @csrf
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Upload Unity Signature</label>
-                                    <input type="file" name="unity_signature" class="form-control" accept="image/*">
-                                </div>
-                                @if(!empty($setting->unity_signature))
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Current Unity Signature</label><br>
-                                    <img src="{{ asset('storage/' . $setting->unity_signature) }}" alt="Unity Signature"
-                                        style="max-width: 300px;">
-                                </div>
-                                @endif
-                                @if(!empty($setting->unity_signature))
-                                <img id="unitySignatureImage" src="{{ asset('storage/' . $setting->unity_signature) }}"
-                                    alt="Unity Signature" style="max-width: 200px; margin-top:10px; display: block;">
-                                @else
-                                <img id="unitySignatureImage" src="" alt="Unity Signature"
-                                    style="max-width: 200px; margin-top:10px; display: none;">
-                                @endif
-
-                                <button type="submit" class="btn btn-success float-end">Save Unity Signature</button>
                             </form>
                         </div>
 

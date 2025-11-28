@@ -62,7 +62,7 @@ document.getElementById('notificationForm').addEventListener('submit', function(
             alert('Error: ' + data.message);
             submitBtn.disabled = false;
             submitBtn.innerHTML = currentEditId 
-                ? '<i class="iconoir-save me-1"></i>Update Notification'
+                ? '<i class="bi bi-save me-1"></i>Update Notification'
                 : '<i class="iconoir-check-circle me-1"></i>Save Notification';
         }
     })
@@ -71,7 +71,7 @@ document.getElementById('notificationForm').addEventListener('submit', function(
         alert('An error occurred while saving: ' + error.message);
         submitBtn.disabled = false;
         submitBtn.innerHTML = currentEditId 
-            ? '<i class="iconoir-save me-1"></i>Update Notification'
+            ? '<i class="bi bi-save me-1"></i>Update Notification'
             : '<i class="iconoir-check-circle me-1"></i>Save Notification';
     });
 });
@@ -89,7 +89,7 @@ function editNotification(event, id, title, message) {
     button.innerHTML = title + ' <i class="las la-angle-down float-end"></i>';
     
     const submitBtn = document.getElementById('submitBtn');
-    submitBtn.innerHTML = '<i class="iconoir-save me-1"></i>Update Notification';
+    submitBtn.innerHTML = '<i class="bi bi-save me-1"></i>Update Notification';
     
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }

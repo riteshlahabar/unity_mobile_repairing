@@ -8,28 +8,25 @@ function showSuccessModal(message) {
 
 document.addEventListener('DOMContentLoaded', () => {
     const forms = [
-        {formId: 'businessInfoForm', route: "{{ route('setting.updateBusinessInfo') }}", updateImage: null},
-        {formId: 'termsConditionsForm', route: "{{ route('setting.updateTermsConditions') }}", updateImage: null},
-        {formId: 'remarksForm', route: "{{ route('setting.updateRemarks') }}", updateImage: null},
-        {formId: 'logoForm', route: "{{ route('setting.updateLogo') }}", updateImage: 'logoImage'},
-        {formId: 'profilePictureForm', route: "{{ route('setting.updateProfilePicture') }}", updateImage: 'profilePictureImage'},
-        {formId: 'unitySignatureForm', route: "{{ route('setting.updateUnitySignature') }}", updateImage: 'unitySignatureImage'},
-        {formId: 'securityForm', route: "{{ route('setting.updateSecurity') }}", updateImage: null}
+        {formId: 'businessInfoForm', route: "{{ route('setting.updateBusinessInfo') }}"},
+        {formId: 'termsConditionsForm', route: "{{ route('setting.updateTermsConditions') }}"},
+        {formId: 'remarksForm', route: "{{ route('setting.updateRemarks') }}"},
+        {formId: 'securityForm', route: "{{ route('setting.updateSecurity') }}"}
     ];
 
-    forms.forEach(({formId, route, updateImage}) => {
+    forms.forEach(({formId, route}) => {
         const form = document.getElementById(formId);
         if (!form) return;
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
+
             const formData = new FormData(form);
             formData.append('_method', 'PUT');
 
             const submitButton = form.querySelector('button[type="submit"]');
             submitButton.disabled = true;
-            
+
             try {
                 const response = await fetch(route, {
                     method: 'POST',
@@ -44,15 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (data.success) {
                     showSuccessModal(data.message);
-
-                    // If this form uploads image, update image src dynamically
-                    if (updateImage && data.image_url) {
-                        const imageEl = document.getElementById(updateImage);
-                        if (imageEl) {
-                            imageEl.src = data.image_url; // data.image_url should be sent from backend
-                            imageEl.style.display = 'block';
-                        }
-                    }
 
                     if(formId === 'securityForm'){
                         form.reset(); // clear passwords after save

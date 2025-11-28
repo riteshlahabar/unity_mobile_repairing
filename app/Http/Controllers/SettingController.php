@@ -2,211 +2,206 @@
 
 namespace App\Http\Controllers;
 
+use App\Services\SettingsService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
+/**
+ * Setting Controller
+ * 
+ * Handles application settings (business info, terms, remarks, security)
+ * 
+ * @see \App\Repositories\Contracts\SettingsRepositoryInterface - Data access
+ * @see \App\Services\SettingsService - Business logic
+ * 
+ * Dependencies injected via constructor:
+ * - SettingsService $service
+ */
 class SettingController extends Controller
 {
+    public function __construct(
+        protected SettingsService $service
+    ) {}
+
     /**
-     * Display the settings page with existing data.
+     * Display the settings page with existing data
+     * 
+     * @return \Illuminate\View\View
      */
     public function index()
     {
-        $setting = DB::table('business_info')->first();
-        $general = DB::table('general_info')->first();
-
-        // Merge objects for easier access in the view, prioritizing business_info
-        $settingsData = (object) array_merge(
-            (array) $general,
-            (array) $setting
-        );
-
-        return view('settings.index', ['setting' => $settingsData]);
+        $setting = $this->service->getAllSettings();
+        return view('settings.index', ['setting' => $setting]);
     }
 
     /**
-     * Save or update Business Info.
+     * Update business information
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function updateBusinessInfo(Request $request)
     {
-        $request->validate([
-            'business_name' => 'required|string|max:255',
-            'owner_name' => 'nullable|string|max:255',
-            'mobile_number' => 'nullable|string|max:20',
-            'email' => 'nullable|email|max:255',
-            'address' => 'nullable|string',
-        ]);
+        try {
+            $validated = $request->validate([
+                'business_name' => 'required|string|max:255',
+                'owner_name' => 'nullable|string|max:255',
+                'mobile_number' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
+                'address' => 'nullable|string',
+            ]);
 
-        $data = $request->only(['business_name', 'owner_name', 'mobile_number', 'email', 'address']);
-        $data['updated_at'] = now();
+            $result = $this->service->updateBusinessInfo($validated);
+            return response()->json($result);
 
-        $existing = DB::table('business_info')->first();
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
 
-        if ($existing) {
-            DB::table('business_info')->where('id', $existing->id)->update($data);
-            $message = 'Business Info Updated Successfully.';
-        } else {
-            $data['created_at'] = now();
-            DB::table('business_info')->insert($data);
-            $message = 'Business Info Saved Successfully.';
+        } catch (\Exception $e) {
+            Log::error('Business Info Update Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating business info'
+            ], 500);
         }
-
-        return response()->json(['success' => true, 'message' => $message]);
     }
 
     /**
-     * Save or update Terms and Conditions.
+     * Update terms and conditions
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function updateTermsConditions(Request $request)
     {
-        $request->validate(['terms_conditions' => 'nullable|string']);
-        
-        $data = ['terms_conditions' => $request->terms_conditions, 'updated_at' => now()];
-        $existing = DB::table('general_info')->first();
+        try {
+            $request->validate(['terms_conditions' => 'nullable|string']);
 
-        if ($existing) {
-            DB::table('general_info')->where('id', $existing->id)->update($data);
-            $message = 'Terms & Conditions Updated Successfully.';
-        } else {
-            $data['created_at'] = now();
-            DB::table('general_info')->insert($data);
-            $message = 'Terms & Conditions Saved Successfully.';
+            $result = $this->service->updateTermsConditions(
+                $request->input('terms_conditions', '')
+            );
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            Log::error('Terms Update Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating terms & conditions'
+            ], 500);
         }
-        return response()->json(['success' => true, 'message' => $message]);
     }
 
     /**
-     * Save or update Remarks.
+     * Update remarks
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function updateRemarks(Request $request)
     {
-        $request->validate(['remarks' => 'nullable|string']);
-        
-        $data = ['remarks' => $request->remarks, 'updated_at' => now()];
-        $existing = DB::table('general_info')->first();
+        try {
+            $request->validate(['remarks' => 'nullable|string']);
 
-        if ($existing) {
-            DB::table('general_info')->where('id', $existing->id)->update($data);
-            $message = 'Remarks Updated Successfully.';
-        } else {
-            $data['created_at'] = now();
-            DB::table('general_info')->insert($data);
-            $message = 'Remarks Saved Successfully.';
+            $result = $this->service->updateRemarks(
+                $request->input('remarks', '')
+            );
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            Log::error('Remarks Update Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating remarks'
+            ], 500);
         }
-        return response()->json(['success' => true, 'message' => $message]);
     }
 
     /**
-     * Save or update Logo.
-     */
-    public function updateLogo(Request $request)
-    {
-        $request->validate(['logo' => 'nullable|image|max:2048']);
-        
-        $path = null;
-        if ($request->hasFile('logo')) {
-            $path = $request->file('logo')->store('logos', 'public');
-        }
-
-        $data = ['logo' => $path, 'updated_at' => now()];
-        $existing = DB::table('general_info')->first();
-
-        if ($existing) {
-            DB::table('general_info')->where('id', $existing->id)->update($data);
-            $message = 'Logo Updated Successfully.';
-        } else {
-            $data['created_at'] = now();
-            $data['logo'] = $path; // Ensure path is set for insert
-            DB::table('general_info')->insert($data);
-            $message = 'Logo Saved Successfully.';
-        }
-        return response()->json([
-    'success' => true,
-    'message' => $message,
-    'image_url' => $path ? asset('storage/' . $path) : null,
-]);
-    }
-    
-    /**
-     * Save or update Profile Picture.
-     */
-    public function updateProfilePicture(Request $request)
-    {
-        $request->validate(['profile_picture' => 'nullable|image|max:2048']);
-
-        $path = null;
-        if ($request->hasFile('profile_picture')) {
-            $path = $request->file('profile_picture')->store('profile_pictures', 'public');
-        }
-        
-        $data = ['profile_picture' => $path, 'updated_at' => now()];
-        $existing = DB::table('general_info')->first();
-
-        if ($existing) {
-            DB::table('general_info')->where('id', $existing->id)->update($data);
-            $message = 'Profile Picture Updated Successfully.';
-        } else {
-            $data['created_at'] = now();
-            DB::table('general_info')->insert($data);
-            $message = 'Profile Picture Saved Successfully.';
-        }
-        return response()->json([
-    'success' => true,
-    'message' => $message,
-    'image_url' => $path ? asset('storage/' . $path) : null,
-]);
-    }
-
-    /**
-     * Save or update Unity Signature.
-     */
-    public function updateUnitySignature(Request $request)
-    {
-        $request->validate(['unity_signature' => 'nullable|image|max:2048']);
-        
-        $path = null;
-        if ($request->hasFile('unity_signature')) {
-            $path = $request->file('unity_signature')->store('unity_signatures', 'public');
-        }
-        
-        $data = ['unity_signature' => $path, 'updated_at' => now()];
-        $existing = DB::table('general_info')->first();
-
-        if ($existing) {
-            DB::table('general_info')->where('id', $existing->id)->update($data);
-            $message = 'Unity Signature Updated Successfully.';
-        } else {
-            $data['created_at'] = now();
-            DB::table('general_info')->insert($data);
-            $message = 'Unity Signature Saved Successfully.';
-        }
-        return response()->json([
-    'success' => true,
-    'message' => $message,
-    'image_url' => $path ? asset('storage/' . $path) : null,
-]);
-    }
-
-    /**
-     * Update user password.
+     * Update user password
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function updateSecurity(Request $request)
     {
-        $request->validate([
-            'current_password' => 'required|string',
-            'new_password' => 'required|string|confirmed|min:6',
-        ]);
+        try {
+            $validated = $request->validate([
+                'current_password' => 'required|string',
+                'new_password' => 'required|string|confirmed|min:6',
+            ]);
 
+            $result = $this->service->updatePassword(
+                auth()->user(),
+                $validated['current_password'],
+                $validated['new_password']
+            );
+
+            return response()->json($result);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Password Update Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating password'
+            ], 500);
+        }
+    }
+    
+    /**
+ * Change revenue PIN
+ */
+public function changeRevenuePin(Request $request)
+{
+    $request->validate([
+        'current_pin' => 'required|string',
+        'new_pin' => 'required|string|size:4|different:current_pin',
+        'confirm_pin' => 'required|string|same:new_pin',
+    ]);
+
+    try {
         $user = auth()->user();
 
-        if (!Hash::check($request->current_password, $user->password)) {
-            return response()->json(['success' => false, 'message' => 'Current password does not match.']);
+        // Verify current PIN
+        if ($user->revenue_pin !== $request->current_pin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Current PIN is incorrect'
+            ], 422);
         }
 
-        $user->password = Hash::make($request->new_password);
-        $user->save();
+        // Update PIN
+        $user->update(['revenue_pin' => $request->new_pin]);
 
-        return response()->json(['success' => true, 'message' => 'Password Changed Successfully.']);
+        // Update config
+        config(['services.revenue_pin' => $request->new_pin]);
+
+        Log::info('Revenue PIN changed by user', ['user_id' => $user->id]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Revenue PIN changed successfully'
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error changing revenue PIN: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
     }
+}
+
 }
