@@ -15,9 +15,6 @@ return new class extends Migration
             $table->id();
             $table->text('terms_conditions')->nullable();
             $table->text('remarks')->nullable();
-            $table->string('logo')->nullable();
-            $table->string('profile_picture')->nullable();
-            $table->string('unity_signature')->nullable();
             $table->timestamps();
         });
     }

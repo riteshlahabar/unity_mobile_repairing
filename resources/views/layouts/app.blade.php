@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="/assets/css/bootstrap.min.css" type="text/css">
     <link rel="stylesheet" href="/assets/css/icons.min.css" type="text/css">
     <link rel="stylesheet" href="/assets/css/app.min.css" type="text/css">
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 </head>
 
 <body>
@@ -37,7 +38,7 @@
     <script src="/assets/libs/simplebar/simplebar.min.js"></script>
     <script src="/assets/libs/apexcharts/apexcharts.min.js"></script>
     <script src="/assets/js/app.js"></script>
-
+@include('layouts.mode')
     
 </body>
 </html>

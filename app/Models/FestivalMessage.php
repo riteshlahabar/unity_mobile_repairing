@@ -2,22 +2,27 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class FestivalMessage extends Model
 {
-    use HasFactory;
+    protected $table = 'festival_messages';
 
     protected $fillable = [
-        'customer_id',
+        'campaign_name',
+        'sent_date',
         'message',
+        'total_customers',
+        'message_sent',
+        'failed_messages',
         'status',
-        'response',
+        
     ];
 
-    public function customer()
-    {
-        return $this->belongsTo(Customer::class);
-    }
+    protected $casts = [
+        'sent_date' => 'datetime',
+        'total_customers' => 'integer',
+        'message_sent' => 'integer',
+        'failed_messages' => 'integer',
+    ];
 }

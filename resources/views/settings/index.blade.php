@@ -2,12 +2,6 @@
 @section('title', 'Settings | Mifty')
 
 @section('content')
-
-<head>
-    <!-- other meta tags -->
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    <!-- other resources -->
-</head>
 <div class="container-fluid">
     <div class="row mb-1">
         <div class="col-sm-12">
@@ -31,15 +25,11 @@
                                 aria-selected="false">Terms and Conditions</a>
                             <a class="nav-link py-2" id="Remarks-tab" data-bs-toggle="tab" href="#Remarks" role="tab"
                                 aria-controls="Remarks" aria-selected="false">Remarks</a>
-                            <a class="nav-link py-2" id="LogoUpdate-tab" data-bs-toggle="tab" href="#LogoUpdate"
-                                role="tab" aria-controls="LogoUpdate" aria-selected="false">Logo</a>
-                            <a class="nav-link py-2" id="ProfilePictureUpdate-tab" data-bs-toggle="tab"
-                                href="#ProfilePictureUpdate" role="tab" aria-controls="ProfilePictureUpdate"
-                                aria-selected="false">Profile Picture</a>
-                            <a class="nav-link py-2" id="UnitySignature-tab" data-bs-toggle="tab" href="#UnitySignature"
-                                role="tab" aria-controls="UnitySignature" aria-selected="false">Unity Signature</a>
                             <a class="nav-link py-2" id="Security-tab" data-bs-toggle="tab" href="#Security" role="tab"
                                 aria-controls="Security" aria-selected="false">Security</a>
+                            <!-- FIXED: Added proper Change Pin tab -->
+                            <a class="nav-link py-2" id="ChangePin-tab" data-bs-toggle="tab" href="#ChangePin" role="tab"
+                                aria-controls="ChangePin" aria-selected="false">Change Pin</a>    
                         </div>
                     </nav>
 
@@ -105,74 +95,6 @@
                             </form>
                         </div>
 
-                        <!-- Logo Update -->
-                        <div class="tab-pane fade" id="LogoUpdate" role="tabpanel" aria-labelledby="LogoUpdate-tab">
-                            <form id="logoForm" enctype="multipart/form-data">
-                                @csrf
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Upload Logo</label>
-                                    <input type="file" name="logo" class="form-control" accept="image/*">
-                                </div>
-                                @if(!empty($setting->logo))
-                                <img id="logoImage" src="{{ asset('storage/' . $setting->logo) }}" alt="Logo"
-                                    style="max-width: 200px; margin-top:10px; display: block;">
-                                @else
-                                <img id="logoImage" src="" alt="Logo"
-                                    style="max-width: 200px; margin-top:10px; display: none;">
-                                @endif
-                                <button type="submit" class="btn btn-success float-end">Save Logo</button>
-                            </form>
-                        </div>
-
-                        <!-- Profile Picture Update -->
-                        <div class="tab-pane fade" id="ProfilePictureUpdate" role="tabpanel"
-                            aria-labelledby="ProfilePictureUpdate-tab">
-                            <form id="profilePictureForm" enctype="multipart/form-data">
-                                @csrf
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Upload Profile Picture</label>
-                                    <input type="file" name="profile_picture" class="form-control" accept="image/*">
-                                </div>
-                                @if(!empty($setting->profile_picture))
-                                <img id="profilePictureImage" src="{{ asset('storage/' . $setting->profile_picture) }}"
-                                    alt="Profile Picture" style="max-width: 200px; margin-top:10px; display: block;">
-                                @else
-                                <img id="profilePictureImage" src="" alt="Profile Picture"
-                                    style="max-width: 200px; margin-top:10px; display: none;">
-                                @endif
-
-                                <button type="submit" class="btn btn-success float-end">Save Profile Picture</button>
-                            </form>
-                        </div>
-
-                        <!-- Unity Signature -->
-                        <div class="tab-pane fade" id="UnitySignature" role="tabpanel"
-                            aria-labelledby="UnitySignature-tab">
-                            <form id="unitySignatureForm" enctype="multipart/form-data">
-                                @csrf
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Upload Unity Signature</label>
-                                    <input type="file" name="unity_signature" class="form-control" accept="image/*">
-                                </div>
-                                @if(!empty($setting->unity_signature))
-                                <div class="mb-3">
-                                    <label class="form-label fw-bold">Current Unity Signature</label><br>
-                                    <img src="{{ asset('storage/' . $setting->unity_signature) }}" alt="Unity Signature"
-                                        style="max-width: 300px;">
-                                </div>
-                                @endif
-                                @if(!empty($setting->unity_signature))
-                                <img id="unitySignatureImage" src="{{ asset('storage/' . $setting->unity_signature) }}"
-                                    alt="Unity Signature" style="max-width: 200px; margin-top:10px; display: block;">
-                                @else
-                                <img id="unitySignatureImage" src="" alt="Unity Signature"
-                                    style="max-width: 200px; margin-top:10px; display: none;">
-                                @endif
-
-                                <button type="submit" class="btn btn-success float-end">Save Unity Signature</button>
-                            </form>
-                        </div>
-
                         <!-- Security -->
                         <div class="tab-pane fade" id="Security" role="tabpanel" aria-labelledby="Security-tab">
                             <form id="securityForm" enctype="multipart/form-data">
@@ -187,6 +109,32 @@
                                         placeholder="Confirm new password">
                                 </div>
                                 <button type="submit" class="btn btn-success float-end">Save Password</button>
+                            </form>
+                        </div>
+
+                        <!-- NEW: Change Pin Tab -->
+                        <div class="tab-pane fade" id="ChangePin" role="tabpanel" aria-labelledby="ChangePin-tab">
+                            <form id="changePinForm" enctype="multipart/form-data">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="form-label fw-bold">Change PIN</label>
+                                    <div class="row">
+                                        <div class="col-md-4">
+                                            <input type="password" name="current_pin" class="form-control mb-2"
+                                                placeholder="Current PIN" maxlength="6" minlength="4">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="password" name="new_pin" class="form-control mb-2"
+                                                placeholder="New PIN" maxlength="6" minlength="4">
+                                        </div>
+                                        <div class="col-md-4">
+                                            <input type="password" name="new_pin_confirmation" class="form-control"
+                                                placeholder="Confirm New PIN" maxlength="6" minlength="4">
+                                        </div>
+                                    </div>
+                                    <div class="form-text">PIN should be 4-6 digits long</div>
+                                </div>
+                                <button type="submit" class="btn btn-success float-end">Change PIN</button>
                             </form>
                         </div>
                     </div>

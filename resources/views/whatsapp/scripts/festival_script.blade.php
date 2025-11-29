@@ -15,9 +15,10 @@ var quill = new Quill('#editor', {
 
 // Update hidden textarea and character count
 quill.on('text-change', function() {
-    var text = quill.getText().trim();
-    document.getElementById('message').value = text;
-    document.getElementById('charCount').textContent = text.length;
+    var plainText = quill.getText().trim();
+    var html = quill.root.innerHTML.trim();
+    document.getElementById('message').value = html;
+    document.getElementById('charCount').textContent = plainText.length;
 });
 
 // Show/hide date range div based on radio
@@ -28,6 +29,9 @@ document.querySelectorAll('input[name="send_to"]').forEach(radio => {
         } else {
             document.getElementById('dateRangeDiv').classList.add('d-none');
             document.getElementById('dateRangeCount').textContent = '0';
+            // Clear date fields when switching to 'all'
+            document.getElementById('from_date').value = '';
+            document.getElementById('to_date').value = '';
         }
     });
 });
@@ -121,7 +125,8 @@ document.getElementById('festivalMessageForm').addEventListener('submit', functi
     }
 
     // Calculate count for confirmation
-    const count = sendTo === 'all' ? '{{ $totalCustomers }}' : document.getElementById('dateRangeCount').textContent;
+    const count = sendTo === 'all' ? parseInt('{{ $totalCustomers }}', 10) : parseInt(document.getElementById('dateRangeCount').textContent || '0', 10);
+
     
     if (!confirm(`Send this message to ${count} customers?`)) {
         return;
@@ -130,13 +135,35 @@ document.getElementById('festivalMessageForm').addEventListener('submit', functi
     sendBtn.disabled = true;
     sendBtn.innerHTML = '<i class="las la-spinner la-spin me-1"></i>Sending...';
 
-    // Prepare payload
+    // Prepare payload - ONLY include dates if send_to is 'selected'
+    document.getElementById('message').value = quill.root.innerHTML.trim();
+    const messageHtml = document.getElementById('message').value;
+
+    let sentDateInput = document.getElementById('sent_date');
+    let sentDateValue = sentDateInput ? sentDateInput.value : null;
+    if (!sentDateValue) {
+        const today = new Date().toISOString().slice(0,10);
+        sentDateValue = today;
+        if (sentDateInput) sentDateInput.value = today;
+    }
+
+    // Build payload conditionally
     const data = {
-        message: message,
+        message: messageHtml,
         send_to: sendTo,
-        from_date: document.getElementById('from_date').value,
-        to_date: document.getElementById('to_date').value
+        sent_date: sentDateValue
     };
+    
+    const campaignNameInput = document.getElementById('campaign_name').value.trim();
+if (campaignNameInput.length > 0) {
+    data.campaign_name = campaignNameInput;
+}
+
+    // Only include dates if send_to is 'selected'
+    if (sendTo === 'selected') {
+        data.from_date = document.getElementById('from_date').value;
+        data.to_date = document.getElementById('to_date').value;
+    }
 
     fetch('/whatsapp/festival/send', {
         method: 'POST',
@@ -152,7 +179,7 @@ document.getElementById('festivalMessageForm').addEventListener('submit', functi
             alert(resp.message);
             window.location.reload();
         } else {
-            alert('Error: ' + resp.message);
+            alert('Error: ' + (resp.message || 'Unknown error'));
         }
     })
     .catch(e => {

@@ -73,7 +73,7 @@ class JobSheet extends Model
         $lastJobSheet = self::orderBy('id', 'desc')->first();
         
         if (!$lastJobSheet) {
-            return 'JS0001'; // First jobsheet ever
+            return 'JS4001'; // First jobsheet ever
         }
         
         // Extract number from last jobsheet_id (JS0001 -> 1)
@@ -86,5 +86,9 @@ class JobSheet extends Model
     }
     // Relationship with Device Photos
 
+public function warranty()
+{
+    return $this->hasOne(Warranty::class, 'jobsheet_id', 'id');
+}
 
 }

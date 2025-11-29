@@ -9,17 +9,6 @@
         <div class="col-sm-12">
             <div class="page-title-box d-md-flex justify-content-md-between align-items-center mb-2">
                 <h4 class="page-title mb-0">Festival Messages</h4>
-                <div class="d-flex gap-2">
-                    <button type="button" class="btn btn-primary btn-sm">
-                        Total Customers <span class="badge bg-light text-dark">{{ $totalCustomers }}</span>
-                    </button>
-                    <button type="button" class="btn btn-success btn-sm">
-                        Messages Sent <span class="badge bg-light text-dark">{{ $sentMessages }}</span>
-                    </button>
-                    <button type="button" class="btn btn-danger btn-sm">
-                        Failed Messages <span class="badge bg-light text-dark">{{ $failedMessages }}</span>
-                    </button>
-                </div>
             </div>
         </div>
     </div>
@@ -37,19 +26,16 @@
                             <div class="col-md-4">
                                 <!-- Send To Options -->
                                 <div class="mb-2">
-                                    <label class="form-label fw-bold mb-1">Send To <span
-                                            class="text-danger">*</span></label>
+                                    <label class="form-label fw-bold mb-1">Send To <span class="text-danger">*</span></label>
                                     <div class="d-flex gap-3">
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="send_to" id="send_to_all"
-                                                value="all" checked>
+                                            <input class="form-check-input" type="radio" name="send_to" id="send_to_all" value="all" checked>
                                             <label class="form-check-label" for="send_to_all">
-                                                All Customers ({{ $totalCustomers }})
+                                                All Customers ({{ $totalCustomers ?? 0 }})
                                             </label>
                                         </div>
                                         <div class="form-check">
-                                            <input class="form-check-input" type="radio" name="send_to"
-                                                id="send_to_selected" value="selected">
+                                            <input class="form-check-input" type="radio" name="send_to" id="send_to_selected" value="selected">
                                             <label class="form-check-label" for="send_to_selected">
                                                 Selected Customers
                                             </label>
@@ -63,20 +49,17 @@
                                     <div class="row g-2">
                                         <div class="col-6">
                                             <label class="form-label mb-1" style="font-size: 12px;">From Date</label>
-                                            <input type="date" class="form-control form-control-sm" id="from_date"
-                                                name="from_date">
+                                            <input type="date" class="form-control form-control-sm" id="from_date" name="from_date">
                                         </div>
                                         <div class="col-6">
                                             <label class="form-label mb-1" style="font-size: 12px;">To Date</label>
-                                            <input type="date" class="form-control form-control-sm" id="to_date"
-                                                name="to_date">
+                                            <input type="date" class="form-control form-control-sm" id="to_date" name="to_date">
                                         </div>
                                     </div>
                                     <!-- Badge below date range -->
                                     <div class="mt-2">
                                         <button type="button" class="btn btn-primary btn-sm">
-                                            Filtered Customers <span class="badge bg-light text-dark"
-                                                id="dateRangeCount">0</span>
+                                            Filtered Customers <span class="badge bg-light text-dark" id="dateRangeCount">0</span>
                                         </button>
                                     </div>
                                 </div>
@@ -94,16 +77,22 @@
 
                             <!-- Right Side: Message Editor -->
                             <div class="col-md-8">
+                                <!-- Campaign Name input -->
                                 <div class="mb-2">
-                                    <label class="form-label fw-bold mb-1">Festival Message <span
-                                            class="text-danger">*</span></label>
-                                    <div id="editor"
-                                        style="height: 220px; border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden;">
-                                    </div>
+                                    <label for="campaign_name" class="form-label fw-bold mb-1">Campaign Name</label>
+                                    <input type="text" id="campaign_name" name="campaign_name" 
+                                           class="form-control form-control-sm" 
+                                           placeholder="Enter campaign name (e.g. Diwali, Dasara)" 
+                                           maxlength="255">
+                                </div>
 
-                                    <textarea id="message" name="message" class="d-none" required></textarea>
-                                    <small class="text-muted">Character count: <span
-                                            id="charCount">0</span>/1000</small>
+                                <!-- Festival Message Editor -->
+                                <div class="mb-2">
+                                    <label class="form-label fw-bold mb-1">Festival Message <span class="text-danger">*</span></label>
+                                    <div id="editor" style="height: 220px; border: 1px solid #dee2e6; border-radius: 4px; overflow: hidden;"></div>
+                                    <textarea id="message" name="message" class="d-none"></textarea>
+                                    <input type="hidden" id="sent_date" name="sent_date" value="{{ date('Y-m-d') }}">
+                                    <small class="text-muted">Character count: <span id="charCount">0</span>/1000</small>
                                 </div>
                             </div>
                         </div>
@@ -126,10 +115,11 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>#</th>
-                                    <th>Customer ID</th>
-                                    <th>Customer Name</th>
-                                    <th>WhatsApp No</th>
+                                    <th>Campaign</th>
                                     <th>Message</th>
+                                    <th>Total</th>
+                                    <th>Sent</th>
+                                    <th>Failed</th>
                                     <th>Status</th>
                                     <th>Sent At</th>
                                 </tr>
@@ -137,38 +127,47 @@
                             <tbody>
                                 @forelse($messages as $msg)
                                 <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td><span
-                                            class="badge bg-primary-subtle text-primary">{{ $msg->customer->customer_id }}</span>
-                                    </td>
-                                    <td>{{ $msg->customer->full_name }}</td>
-                                    <td>{{ $msg->customer->whatsapp_no }}</td>
-                                    <td>{!! Str::limit(strip_tags($msg->message), 50) !!}</td>
+                                    <td>{{ $loop->iteration + ($messages->currentPage()-1) * $messages->perPage() }}</td>
+                                    <!-- Campaign name -->
+                                    <td><strong>{{ $msg->campaign_name ?? 'Unnamed' }}</strong></td>
+                                    <!-- Message preview (strip tags and limit) -->
+                                    <td>{!! Str::limit(strip_tags($msg->message ?? ''), 60) !!}</td>
+                                    <!-- Totals -->
+                                    <td>{{ number_format($msg->total_customers ?? 0) }}</td>
+                                    <td>{{ number_format($msg->message_sent ?? 0) }}</td>
+                                    <td>{{ number_format($msg->failed_messages ?? 0) }}</td>
+                                    <!-- Status badge -->
                                     <td>
-                                        @if($msg->status == 'sent')
-                                        <span class="badge bg-success">Sent</span>
-                                        @elseif($msg->status == 'failed')
-                                        <span class="badge bg-danger">Failed</span>
+                                        @if($msg->status === 'sent')
+                                            <span class="badge bg-success">Sent</span>
+                                        @elseif($msg->status === 'failed')
+                                            <span class="badge bg-danger">Failed</span>
+                                        @elseif($msg->status === 'partial')
+                                            <span class="badge bg-warning">Partial</span>
                                         @else
-                                        <span class="badge bg-warning">Pending</span>
+                                            <span class="badge bg-secondary">{{ ucfirst($msg->status ?? 'Pending') }}</span>
                                         @endif
                                     </td>
+                                    <!-- Sent date/time -->
                                     <td>
-                                        <small>{{ $msg->created_at->format('d-M-Y') }}</small>
-                                        <br><small class="text-muted">{{ $msg->created_at->format('h:i A') }}</small>
+                                        @if($msg->sent_date)
+                                            <small>{{ \Carbon\Carbon::parse($msg->sent_date)->format('d-M-Y') }}</small><br>
+                                            <small class="text-muted">{{ \Carbon\Carbon::parse($msg->sent_date)->format('h:i A') }}</small>
+                                        @else
+                                            <small class="text-muted">--</small>
+                                        @endif
                                     </td>
                                 </tr>
                                 @empty
                                 <tr>
-                                    <td colspan="7" class="text-center py-3">
-                                        <p class="text-muted mb-0">No messages sent yet</p>
+                                    <td colspan="8" class="text-center py-3">
+                                        <p class="text-muted mb-0">No campaigns yet</p>
                                     </td>
                                 </tr>
                                 @endforelse
                             </tbody>
                         </table>
                     </div>
-
 
                     <!-- Pagination -->
                     <div class="mt-2">

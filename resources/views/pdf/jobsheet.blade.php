@@ -1,151 +1,283 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <meta charset="utf-8">
     <title>JobSheet - {{ $jobSheet->jobsheet_id }}</title>
     <style>
-        body { font-family: Arial, sans-serif; font-size: 12px; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
-        .header h1 { margin: 0; font-size: 24px; }
-        .section { margin-bottom: 15px; }
-        .section-title { font-size: 14px; font-weight: bold; background: #f0f0f0; padding: 5px; margin-bottom: 10px; }
-        .row { display: table; width: 100%; margin-bottom: 5px; }
-        .col { display: table-cell; padding: 3px; }
-        .col-label { font-weight: bold; width: 30%; }
-        .footer { margin-top: 30px; border-top: 1px solid #000; padding-top: 10px; text-align: center; font-size: 10px; }
+    @page {
+        margin-top: 3.1in;
+        margin-right: 1.5in;
+        margin-bottom: 2in;
+        margin-left: 1in;
+    }
+
+    body {
+        font-family: DejaVu Sans, Arial, sans-serif;
+        font-size: 10px;
+        margin: 0;
+        padding: 0;
+    }
+
+    .jobsheet-id {
+        text-align: center;
+        font-size: 16px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        padding: 8px;
+        border: 2px solid #000;
+        display: inline-block;
+        width: 200px;
+        margin-left: calc(50% - 100px);
+    }
+
+    .main-container {
+        display: table;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    .left-column {
+        display: table-cell;
+        width: 50%;
+        vertical-align: top;
+        padding-right: 15px;
+    }
+
+    .right-column {
+        display: table-cell;
+        width: 50%;
+        vertical-align: top;
+        padding-left: 15px;
+    }
+
+    .info-row {
+        margin-bottom: 4px;
+        display: flex;
+    }
+
+    .info-label {
+        font-weight: bold;
+        min-width: 45%;
+        display: inline-block;
+    }
+
+    .info-value {
+        display: inline-block;
+    }
+
+    .section-title {
+        font-size: 11px;
+        font-weight: bold;
+        margin-top: 12px;
+        margin-bottom: 6px;
+        text-decoration: underline;
+    }
+
+    .qr-box {
+        text-align: center;
+        margin-top: 10px;
+    }
+
+    .date-box {
+        text-align: center;
+        margin-bottom: 10px;
+    }
+
+    .checkbox-item {
+        display: inline-block;
+        margin-right: 15px;
+    }
+
+    .sign-row {
+        display: table;
+        width: 100%;
+        margin-top: 25px;
+    }
+
+    .signature-box {
+        display: table-cell;
+        width: 50%;
+        text-align: center;
+        vertical-align: bottom;
+    }
+
+    .checkbox-row {
+        margin-top: 10px;
+        margin-bottom: 15px;
+    }
     </style>
 </head>
+
 <body>
-    <div class="header">
-        <h1>Unity Mobile Repairing</h1>
-        <p>Mobile Repair Service Center</p>
+
+    <!-- JobSheet ID - Centered -->
+    <div class="jobsheet-id">
+        {{ $jobSheet->jobsheet_id }}
     </div>
 
-    <div class="section">
-        <div class="section-title">JobSheet Details</div>
-        <div class="row">
-            <div class="col col-label">JobSheet ID:</div>
-            <div class="col">{{ $jobSheet->jobsheet_id }}</div>
-            <div class="col col-label">Date:</div>
-            <div class="col">{{ $jobSheet->created_at->format('d-M-Y h:i A') }}</div>
-        </div>
-        <div class="row">
-            <div class="col col-label">Status:</div>
-            <div class="col">{{ ucfirst(str_replace('_', ' ', $jobSheet->status)) }}</div>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Customer Information</div>
-        <div class="row">
-            <div class="col col-label">Customer ID:</div>
-            <div class="col">{{ $jobSheet->customer->customer_id }}</div>
-        </div>
-        <div class="row">
-            <div class="col col-label">Name:</div>
-            <div class="col">{{ $jobSheet->customer->full_name }}</div>
-        </div>
-        <div class="row">
-            <div class="col col-label">Contact:</div>
-            <div class="col">{{ $jobSheet->customer->contact_no }}</div>
-        </div>
-        <div class="row">
-            <div class="col col-label">Address:</div>
-            <div class="col">{{ $jobSheet->customer->address }}</div>
-        </div>
-    </div>
-
-    <div class="section">
-        <div class="section-title">Device Information</div>
-        <div class="row">
-            <div class="col col-label">Company:</div>
-            <div class="col">{{ $jobSheet->company }}</div>
-            <div class="col col-label">Model:</div>
-            <div class="col">{{ $jobSheet->model }}</div>
-        </div>
-        <div class="row">
-            <div class="col col-label">Color:</div>
-            <div class="col">{{ $jobSheet->color }}</div>
-            <div class="col col-label">Series:</div>
-            <div class="col">{{ $jobSheet->series }}</div>
-        </div>
-        @if($jobSheet->imei)
-        <div class="row">
-            <div class="col col-label">IMEI:</div>
-            <div class="col">{{ $jobSheet->imei }}</div>
-        </div>
-        @endif
-    </div>
-
-    <div class="section">
-        <div class="section-title">Problem Description</div>
-        <p>{{ $jobSheet->problem_description }}</p>
+    <!-- Two Column Layout -->
+    <div class="main-container">
         
-        <div class="row">
-            <div class="col">
-                @if($jobSheet->status_dead) ✓ Dead @endif
-                @if($jobSheet->status_damage) ✓ Damage @endif
-                @if($jobSheet->status_on) ✓ On with Problem @endif
+        <!-- LEFT COLUMN -->
+        <div class="left-column">
+            
+            <!-- Customer Information -->
+            <div class="info-row">
+                <span class="info-label">Customer Name</span>
+                <span class="info-value">: {{ $jobSheet->customer->full_name }}</span>
             </div>
+            <div class="info-row">
+                <span class="info-label">Contact No.</span>
+                <span class="info-value">: {{ $jobSheet->customer->contact_no }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Address</span>
+                <span class="info-value">: {{ $jobSheet->customer->address }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Customer ID</span>
+                <span class="info-value">: {{ $jobSheet->customer->customer_id }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Alternate No.</span>
+                <span class="info-value">: {{ $jobSheet->customer->alternate_no ?? '-' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">WhatsApp No.</span>
+                <span class="info-value">: {{ $jobSheet->customer->whatsapp_no ?? '-' }}</span>
+            </div>
+
+            <!-- Device Information -->
+            <div class="section-title">Device Info.</div>
+            <div class="info-row">
+                <span class="info-label">Company</span>
+                <span class="info-value">: {{ $jobSheet->company }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Series</span>
+                <span class="info-value">: {{ $jobSheet->series }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Model</span>
+                <span class="info-value">: {{ $jobSheet->model }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Color</span>
+                <span class="info-value">: {{ $jobSheet->color }}</span>
+            </div>
+
+            <!-- Problem Description -->
+            <div class="section-title">Problem Description</div>
+            <div style="margin-bottom: 6px;">{{ $jobSheet->problem_description }}</div>
+            <div>
+                <span class="checkbox-item">Dead @if($jobSheet->status_dead) &#x2713; @else &#x2717; @endif</span>
+                <span class="checkbox-item">Damage @if($jobSheet->status_damage) &#x2713; @else &#x2717; @endif</span>
+                <span class="checkbox-item">On with Problem @if($jobSheet->status_on) &#x2713; @else &#x2717; @endif</span>
+            </div>
+
+            <!-- Service Info -->
+            <div class="section-title">Service Info.</div>
+            <div class="info-row">
+                <span class="info-label">Jobsheet Made by</span>
+                <span class="info-value">: {{ $jobSheet->technician ?? '-' }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Location</span>
+                <span class="info-value">: {{ $jobSheet->location ?? '-' }}</span>
+            </div>
+
+            <!-- Cost Details -->
+            <div class="section-title">Cost Details</div>
+            <div class="info-row">
+                <span class="info-label">Estimate Cost</span>
+                <span class="info-value">: Rs. {{ number_format($jobSheet->estimated_cost, 2) }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Advance</span>
+                <span class="info-value">: Rs. {{ number_format($jobSheet->advance, 2) }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Balance</span>
+                <span class="info-value">: Rs. {{ number_format($jobSheet->balance, 2) }}</span>
+            </div>
+
         </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="right-column">
+            
+            <!-- Date -->
+            <div class="date-box">
+                <span class="Date-label">Date: </span>
+                <strong>{{ $jobSheet->created_at->format('d/m/Y') }}</strong>
+            </div>
+
+            
+            <!-- QR Code -->
+<div class="qr-box">
+    <div style="margin-bottom: 5px; font-size: 10px; font-weight: bold;">Scan & Pay with any UPI App</div>
+    <img src="data:image/png;base64,{{ base64_encode(file_get_contents(storage_path('app/public/qrcodes/QR_Code.jpg'))) }}" alt="QR" style="width: 100px; height: 100px; border: 1px solid #000;">
+    <div style="margin-top: 5px; font-size: 9px;">UPI ID : Q483834401@ybl</div>
+</div>
+
+            <!-- Device Details -->
+            <div class="section-title">Device Details</div>
+            <div class="info-row">
+                <span class="info-label">Condition</span>
+                <span class="info-value">: {{ ucfirst($jobSheet->device_condition) }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Water Damage</span>
+                <span class="info-value">: {{ ucfirst($jobSheet->water_damage) }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Physical Damage</span>
+                <span class="info-value">: {{ ucfirst($jobSheet->physical_damage) }}</span>
+            </div>
+
+            <!-- Accessories Info -->
+            <div class="section-title">Accessories Info.</div>
+            <div>
+                <span class="checkbox-item">Sim Tray @if($jobSheet->accessory_sim_tray) &#x2713; @else &#x2717; @endif</span>
+                <span class="checkbox-item">Sim Card @if($jobSheet->accessory_sim_card) &#x2713; @else &#x2717; @endif</span>
+            </div>
+            <div>
+                <span class="checkbox-item">Me. Card @if($jobSheet->accessory_memory_card) &#x2713; @else &#x2717; @endif</span>
+                <span class="checkbox-item">Mo. Cover @if($jobSheet->accessory_mobile_cover) &#x2713; @else &#x2717; @endif</span>
+            </div>
+
+            <!-- Security Info -->
+            <div class="section-title">Security Info.</div>
+            <div class="info-row">
+                <span class="info-label">Device Password</span>
+                <span class="info-value">: {{ $jobSheet->device_password ?? '-' }}</span>
+            </div>
+            @if($jobSheet->pattern_image)
+            <div class="info-row">
+                <span class="info-label">Device Pattern</span>
+            </div>
+            <div style="text-align: center; margin-top: 5px;">
+                <img src="{{ $jobSheet->pattern_image }}" alt="Pattern" style="max-width: 100px; height: auto; border: 1px solid #ccc;">
+            </div>
+            @endif
+
+        </div>
+
     </div>
 
-    <div class="section">
-        <div class="section-title">Device Condition</div>
-        <div class="row">
-            <div class="col col-label">Condition:</div>
-            <div class="col">{{ ucfirst($jobSheet->device_condition) }}</div>
-        </div>
-        <div class="row">
-            <div class="col col-label">Water Damage:</div>
-            <div class="col">{{ ucfirst($jobSheet->water_damage) }}</div>
-            <div class="col col-label">Physical Damage:</div>
-            <div class="col">{{ ucfirst($jobSheet->physical_damage) }}</div>
-        </div>
+   
+    <!-- Signatures 
+    <div class="sign-row" style="margin-top: 50px;">
+    <div class="signature-box" style="text-align: left;">
+        Customer Sign.
     </div>
+    <div class="signature-box" style="text-align: right;">
+        For {{ $businessInfo->business_name ?? 'Business Name' }}
+    </div>
+</div>
+-->
 
-    <div class="section">
-        <div class="section-title">Cost Details</div>
-        <div class="row">
-            <div class="col col-label">Estimated Cost:</div>
-            <div class="col">₹{{ number_format($jobSheet->estimated_cost, 2) }}</div>
-        </div>
-        <div class="row">
-            <div class="col col-label">Advance Paid:</div>
-            <div class="col">₹{{ number_format($jobSheet->advance, 2) }}</div>
-        </div>
-        <div class="row">
-            <div class="col col-label">Balance:</div>
-            <div class="col"><strong>₹{{ number_format($jobSheet->balance, 2) }}</strong></div>
-        </div>
-    </div>
-
-    @if($jobSheet->technician)
-    <div class="section">
-        <div class="section-title">Service Information</div>
-        <div class="row">
-            <div class="col col-label">Technician:</div>
-            <div class="col">{{ $jobSheet->technician }}</div>
-        </div>
-        @if($jobSheet->location)
-        <div class="row">
-            <div class="col col-label">Location:</div>
-            <div class="col">{{ $jobSheet->location }}</div>
-        </div>
-        @endif
-    </div>
-    @endif
-
-    @if($jobSheet->remarks)
-    <div class="section">
-        <div class="section-title">Remarks</div>
-        <p>{{ $jobSheet->remarks }}</p>
-    </div>
-    @endif
-
-    <div class="footer">
-        <p>Thank you for choosing Unity Mobile Repairing</p>
-        <p>This is a computer-generated document</p>
-    </div>
 </body>
+
 </html>

@@ -12,8 +12,8 @@
             
             <div class="col-md-4">
                 <div class="mb-3">
-                    <label for="advance" class="form-label">Advance (₹)</label>
-                    <input type="number" class="form-control" id="advance" name="advance" placeholder="Enter advance amount">
+                    <label for="advance" class="form-label">Advance (₹)</label><span class="text-danger">*</span>
+                    <input type="number" class="form-control" id="advance" name="advance" placeholder="Enter advance amount" required>
                 </div>
             </div>
             

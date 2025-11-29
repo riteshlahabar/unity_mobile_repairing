@@ -112,10 +112,9 @@ class WhatsAppService
 
         // Replace placeholders in message
         $message = $this->replacePlaceholders($notification->message, $data);
-
-        // Strip HTML tags
-        $message = strip_tags($message);
-
+        
+        //formatted msg
+       $message = preg_replace('/\\\\n/', "\n", $this->replacePlaceholders($notification->message, $data));
         return $this->sendMessage($phoneNumber, $message);
     }
 

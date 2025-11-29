@@ -29,17 +29,16 @@
                 <li class="dropdown topbar-item">
                     <a class="nav-link dropdown-toggle arrow-none nav-icon" data-bs-toggle="dropdown" href="#"
                         role="button" aria-haspopup="false" aria-expanded="false" data-bs-offset="0,19">
-                        <img src="/assets/images/users/avatar-1.jpg" alt="" class="thumb-md rounded-circle">
+                        <img src="/assets/images/logo-sm.png" alt="" class="thumb-md rounded-circle">
                     </a>
                     <div class="dropdown-menu dropdown-menu-end py-0">
                         <div class="d-flex align-items-center dropdown-item py-2 bg-secondary-subtle">
                             <div class="flex-shrink-0">
-                                <img src="/assets/images/users/avatar-1.jpg" alt="" class="thumb-md rounded-circle">
+                                <img src="/assets/images/logo-sm.png" alt="" class="thumb-md rounded-circle">
                             </div>
                             <div class="flex-grow-1 ms-2 text-truncate align-self-center">
                                 <h6 class="my-0 fw-medium text-dark fs-13">
-                                    {{ auth()->user()->name ?? 'William Martin' }}</h6>
-                                <small class="text-muted mb-0">Front End Developer</small>
+                                   UNITY MOBILES AND<br>REPAIRING LAB</h6>
                             </div>
                         </div>
                         <div class="dropdown-divider mt-0"></div>
@@ -49,10 +48,8 @@
                         <small class="text-muted px-2 py-1 d-block">Settings</small>
                         <a class="dropdown-item" href="/settings"><i
                                 class="las la-cog fs-18 me-1 align-text-bottom"></i> Account Settings</a>
-                        <a class="dropdown-item" href="/settings#Security"><i
-                                class="las la-lock fs-18 me-1 align-text-bottom"></i> Security</a>
-                        <a class="dropdown-item" href="#"><i
-                                class="las la-question-circle fs-18 me-1 align-text-bottom"></i> Help Center</a>
+                        <a class="dropdown-item" href="/settings#security"><i
+                                class="las la-lock fs-18 me-1 align-text-bottom"></i> Change Password</a>
                         <div class="dropdown-divider mb-0"></div>
                         <form id="logout-form" action="{{ route('admin.logout') }}" method="POST"
                             style="display: none;">
@@ -68,4 +65,5 @@
         </nav>
     </div>
 </div>
+@include('layouts.mode')
 <!-- Top Bar End -->

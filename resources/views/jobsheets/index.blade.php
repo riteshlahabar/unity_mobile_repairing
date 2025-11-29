@@ -50,7 +50,7 @@
                                     <th>Problem</th>
                                     <th>Status</th>
                                     <th>Cost/Advance</th>
-                                    <th>Technician</th>
+                                    <th>Warr/Tech/Loc</th>
                                     <th>Received Date</th>
                                     <th class="text-end">Action</th>
                                 </tr>
@@ -87,20 +87,41 @@
                                         <br><small>{{ Str::limit($job->problem_description, 20) }}</small>
                                     </td>
                                     <td>
-                                        @if($job->status == 'in_progress')
-                                        <button class="btn btn-sm btn-warning w-100" style="min-width: 100px;">
-                                            <i class="iconoir-clock me-1"></i>In Progress
-                                        </button>
-                                        @elseif($job->status == 'completed')
-                                        <button class="btn btn-sm btn-success w-100" style="min-width: 100px;">
-                                            <i class="iconoir-check-circle me-1"></i>Completed
-                                        </button>
-                                        @elseif($job->status == 'delivered')
-                                        <button class="btn btn-sm btn-info w-100" style="min-width: 100px;">
-                                            <i class="iconoir-hourglass me-1"></i>Delivered
-                                        </button>
-                                        @endif
-                                    </td>
+    @if($job->status == 'in_progress')
+        <button class="btn btn-sm btn-warning w-100" style="min-width: 100px; border-radius: 15px;">
+            <i class="fas fa-spinner me-2"></i>In Progress
+        </button>
+    @elseif($job->status == 'call_info')
+        <button class="btn btn-sm btn-primary w-100" style="min-width: 100px; border-radius: 15px;">
+            <i class="fas fa-phone me-2"></i>Call Info
+        </button>
+    @elseif($job->status == 'approval_pending')
+        <button class="btn btn-sm btn-secondary w-100" style="min-width: 100px; border-radius: 15px;">
+            <i class="fas fa-hourglass-half me-2"></i>Approval Pending
+        </button>
+    @elseif($job->status == 'customer_approved')
+        <button class="btn btn-sm btn-info w-100" style="min-width: 100px; border-radius: 15px;">
+            <i class="fas fa-check-circle me-2"></i>Customer Approved
+        </button>
+    @elseif($job->status == 'not_okay_return')
+        <button class="btn btn-sm btn-dark w-100" style="min-width: 100px; border-radius: 15px;">
+            <i class="fas fa-times-circle me-2"></i>Not Okay Return
+        </button>
+    @elseif($job->status == 'ready')
+        <button class="btn btn-sm btn-success w-100" style="min-width: 100px; border-radius: 15px;">
+            <i class="fas fa-check-double me-2"></i>Ready
+        </button>
+    @elseif($job->status == 'return')
+        <button class="btn btn-sm btn-warning w-100" style="min-width: 100px; border-radius: 15px;">
+            <i class="fas fa-undo me-2"></i>Return
+        </button>
+    @elseif($job->status == 'delivered')
+        <button class="btn btn-sm btn-success w-100" style="min-width: 100px; border-radius: 15px;">
+            <i class="fas fa-box me-2"></i>Delivered
+        </button>
+    @endif
+</td>
+
                                     <td>
                                         <div>
                                             <strong>₹{{ number_format($job->estimated_cost, 0) }}</strong>
@@ -116,7 +137,15 @@
                                         </div>
                                     </td>
 
-                                    <td>{{ $job->technician ?? 'Not Assigned' }}</td>
+                                   <td>
+    <div class="text-truncate" style="max-width: 120px;">
+        <small class="text-muted d-block mb-1">
+            {{ $job->previous_jobsheet_id ? $job->previous_jobsheet_id : ($job->warranty ?? '-') }}
+        </small>
+        <strong class="d-block mb-1">{{ $job->technician ?? 'Not Assigned' }}</strong>
+        <small class="text-muted d-block">{{ $job->location ?? '-' }}</small>
+    </div>
+</td>
                                     <td>
                                         <small>{{ $job->created_at->format('d-M-Y') }}</small>
                                         <br><small class="text-muted">{{ $job->created_at->format('h:i A') }}</small>
@@ -140,15 +169,19 @@
                                                     href="{{ route('jobsheets.downloadPDF', $job->jobsheet_id) }}">
                                                     <i class="las la-file-pdf me-2"></i>Download PDF
                                                 </a>
-                                                <a class="dropdown-item" href="#"
-                                                    onclick="printLabel(event, '{{ $job->jobsheet_id }}', '{{ $job->customer->full_name }}', '{{ $job->customer->contact_no }}', '{{ $job->company }} {{ $job->model }}')">
-                                                    <i class="las la-tag me-2"></i>Print Label
-                                                </a>
+                                            <a class="dropdown-item" 
+   href="{{ route('jobsheets.printLabel', $job->jobsheet_id) }}" 
+   target="_blank">
+    <i class="las la-tag me-2"></i>Print Label
+</a>
+
+
+
                                                 <a class="dropdown-item" href="#"
                                                     onclick="printJobsheet(event, '{{ $job->jobsheet_id }}')">
                                                     <i class="las la-print me-2"></i>Print JobSheet
                                                 </a>
-                                                <div class="dropdown-divider"></div>
+                                              {{--  <div class="dropdown-divider"></div>
                                                 <form action="{{ route('jobsheets.destroy', $job->jobsheet_id) }}"
                                                     method="POST" style="display: inline;"
                                                     onsubmit="return confirm('Are you sure you want to delete this jobsheet?');">
@@ -158,7 +191,7 @@
                                                         style="border: none; background: none; width: 100%; text-align: left;">
                                                         <i class="las la-trash me-2"></i>Delete
                                                     </button>
-                                                </form>
+                                                </form> --}}
                                             </div>
                                         </div>
                                     </td>
@@ -196,76 +229,17 @@
 </div>
 
 <script>
-// Print Label Function
-function printLabel(event, jobsheetId, customerName, contactNo, device) {
-    event.preventDefault();
 
-    const printWindow = window.open('', '', 'width=400,height=300');
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>Print Label - ${jobsheetId}</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 20px; text-align: center; }
-                .label { border: 2px solid #000; padding: 20px; margin: 20px; }
-                h2 { margin: 10px 0; }
-                .jobsheet-id { font-size: 24px; font-weight: bold; margin: 15px 0; }
-                .customer-name { font-size: 18px; margin: 10px 0; }
-            </style>
-        </head>
-        <body>
-            <div class="label">
-                <h2>Mobile Repair Shop</h2>
-                <div class="jobsheet-id">${jobsheetId}</div>
-                <div class="customer-name">${customerName}</div>
-                <div>${new Date().toLocaleDateString()}</div>
-            </div>
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
-    printWindow.focus();
-    setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-    }, 250);
-}
-
-// Print JobSheet Function
+// Print JobSheet Function - Calls backend printPDF route
 function printJobsheet(event, jobsheetId) {
     event.preventDefault();
-
-    const printWindow = window.open('', '', 'width=800,height=600');
-    printWindow.document.write(`
-        <html>
-        <head>
-            <title>JobSheet - ${jobsheetId}</title>
-            <style>
-                body { font-family: Arial, sans-serif; padding: 30px; }
-                .header { text-align: center; border-bottom: 2px solid #000; padding-bottom: 20px; margin-bottom: 20px; }
-                .section { margin-bottom: 20px; }
-                .info-row { display: flex; margin-bottom: 8px; }
-                .info-label { font-weight: bold; width: 150px; }
-            </style>
-        </head>
-        <body>
-            <div class="header">
-                <h1>Mobile Repair Shop</h1>
-                <p>JobSheet ID: ${jobsheetId} | Date: ${new Date().toLocaleDateString()}</p>
-            </div>
-            <div class="section">
-                <h3>JobSheet Details</h3>
-                <p>Complete jobsheet information will be printed here...</p>
-            </div>
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
+    
+    // Construct the URL to the printPDF route based on your routes
+    const printUrl = `/jobsheets/${jobsheetId}/print`;
+    
+    // Open PDF in new tab for printing
+    const printWindow = window.open(printUrl, '_blank');
     printWindow.focus();
-    setTimeout(() => {
-        printWindow.print();
-        printWindow.close();
-    }, 250);
 }
 </script>
 

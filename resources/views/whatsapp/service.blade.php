@@ -3,8 +3,8 @@
 @section('title', 'Service Notification | Mifty')
 
 @section('content')
-<div class="container-fluid">   
-    
+<div class="container-fluid">
+
     <!-- Page Title with spacing -->
     <div class="row">
         <div class="col-sm-12">
@@ -14,59 +14,81 @@
         </div>
     </div>
 
-    <!-- Compact Form -->
+    <!-- Form Layout -->
     <div class="row">
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
                     <form id="notificationForm">
                         @csrf
+
                         <div class="row align-items-start">
-                            <!-- Title Dropdown - Left Side -->
-                            <div class="col-md-4">
-                                <div class="mb-3">
+                            <!-- Empty left space -->
+                            <div class="col-md-3"></div>
+
+                            <!-- Content shifted to right with same width & left alignment -->
+                            <div class="col-md-9">
+                                <!-- Message Title - CENTER (left aligned within container) -->
+                                <div class="mb-3" style="max-width: 500px;">
                                     <label class="form-label">Message Title <span class="text-danger">*</span></label>
                                     <div class="btn-group w-100">
-                                        <button type="button" class="btn btn-outline-primary dropdown-toggle text-start" data-bs-toggle="dropdown">
+                                        <button type="button" class="btn btn-outline-primary dropdown-toggle text-start"
+                                            data-bs-toggle="dropdown">
                                             Select Title <i class="las la-angle-down float-end"></i>
                                         </button>
                                         <div class="dropdown-menu w-100">
-                                            <a class="dropdown-item" href="#" onclick="selectTitle(event, 'Customer Welcome')">Customer Welcome</a>
-                                            <a class="dropdown-item" href="#" onclick="selectTitle(event, 'Device Received')">Device Received</a>
-                                            <a class="dropdown-item" href="#" onclick="selectTitle(event, 'Repair Completed')">Repair Completed</a>
-                                            <a class="dropdown-item" href="#" onclick="selectTitle(event, 'OTP Notification')">OTP Notification</a>
-                                            <a class="dropdown-item" href="#" onclick="selectTitle(event, 'Thank You Message')">Thank You Message</a>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectTitle(event, 'Customer Welcome')">Customer Welcome</a>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectTitle(event, 'In Progress')">In Progress</a>    
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectTitle(event, 'Device Received')">Device Received</a>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectTitle(event, 'Call Info')">Call Info</a>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectTitle(event, 'Approval Pending')">Approval Pending</a>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectTitle(event, 'Customer Approved')">Customer Approved</a>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectTitle(event, 'Not Okay Return')">Not Okay Return</a>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectTitle(event, 'Return')">Return</a>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectTitle(event, 'Ready')">Ready</a>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectTitle(event, 'OTP Notification')">OTP Notification</a>
+                                            <a class="dropdown-item" href="#"
+                                                onclick="selectTitle(event, 'Thank You Message')">Thank You Message</a>
                                         </div>
                                     </div>
                                     <input type="hidden" id="notification_title" name="notification_title" required>
                                 </div>
-                            </div>
 
-                            <!-- Editor - Right Side -->
-                            <div class="col-md-8">
-                                <div class="mb-3">
+                                <!-- Message Box - Same width as title (left aligned) -->
+                                <div class="mb-3" style="max-width: 500px;">
                                     <label class="form-label">Message <span class="text-danger">*</span></label>
                                     <!-- Snow Editor container -->
-                                    <div id="snow-editor" style="height: 120px;"></div>
+                                    <div id="snow-editor" style="height: 120px; overflow-y: auto;"></div>
                                     <input type="hidden" id="notification_message" name="notification_message">
                                 </div>
+                                
+                                <!-- Buttons below message box, right aligned -->
+                                <div class="w-100 d-flex justify-content-end gap-2">
+                                    <button type="submit" class="btn btn-primary" id="submitBtn">
+                                        <i class="iconoir-check-circle me-1"></i>Save Notification
+                                    </button>                            
+                                    <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                        <i class="iconoir-restart me-1"></i>Reset
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-
-                        <div class="text-end">
-                            <button type="submit" class="btn btn-primary" id="submitBtn">
-                                <i class="iconoir-check-circle me-1"></i>Save Notification
-                            </button>
-                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
-                                <i class="iconoir-restart me-1"></i>Reset
-                            </button>
                         </div>
                     </form>
                 </div>
             </div>
         </div>
     </div>
-
+</div>
     <!-- Notifications Table -->
     <div class="row">
         <div class="col-12">
@@ -89,10 +111,12 @@
                                     <td>{{ Str::limit(strip_tags($notification->message), 60) }}</td>
                                     <td>{{ $notification->created_at->format('d-M-Y') }}</td>
                                     <td class="text-end">
-                                        <a href="#" class="btn btn-sm btn-soft-primary" onclick='editNotification(event, {{ $notification->id }}, @json($notification->title), @json($notification->message))'>
+                                        <a href="#" class="btn btn-sm btn-soft-primary"
+                                            onclick='editNotification(event, {{ $notification->id }}, @json($notification->title), @json($notification->message))'>
                                             <i class="las la-edit"></i>
                                         </a>
-                                        <a href="#" class="btn btn-sm btn-soft-danger" onclick="deleteNotification(event, {{ $notification->id }})">
+                                        <a href="#" class="btn btn-sm btn-soft-danger"
+                                            onclick="deleteNotification(event, {{ $notification->id }})">
                                             <i class="las la-trash"></i>
                                         </a>
                                     </td>
@@ -100,7 +124,8 @@
                                 @empty
                                 <tr>
                                     <td colspan="4" class="text-center py-4">
-                                        <p class="text-muted mb-0">No notifications yet. Create your first notification above.</p>
+                                        <p class="text-muted mb-0">No notifications yet. Create your first notification
+                                            above.</p>
                                     </td>
                                 </tr>
                                 @endforelse

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Login | Mifty - Admin & Dashboard Template</title>
+  <title>Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <meta content="Premium Multipurpose Admin & Dashboard Template" name="description" />
   <link rel="shortcut icon" href="/assets/images/favicon.ico">
@@ -15,11 +15,11 @@
     <div class="row vh-100 justify-content-center align-items-center">
       <div class="col-lg-4">
         <div class="card">
-          <div class="card-body p-0 bg-black rounded-top text-center">
-            <img src="/assets/images/logo-sm.png" height="50" alt="logo" class="auth-logo mt-3">
-            <h4 class="text-white fs-18 mt-3 mb-1">Unity Mobile & Repairing Lab Shop</h4>
-            <p class="text-muted mb-0 pb-3">Sign in continue to Portal</p>
-          </div>
+          <div class="card-body p-0 bg-white rounded-top text-center">
+    <img src="/assets/images/logo-sm.png" height="50" alt="logo" class="auth-logo mt-3">
+    <h4 class="text-black fs-18 mt-3 mb-1">UNITY MOBILES AND REPAIRING LAB</h4>
+    <p class="text-muted mb-0 pb-3">Sign in continue to Portal</p>
+</div>
           <div class="card-body pt-4">
             <!-- Laravel login POST route, include CSRF -->
             <form method="POST" action="{{ route('admin.login') }}">

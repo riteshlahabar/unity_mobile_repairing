@@ -275,29 +275,21 @@
                     </div>
                 </div>
 
-                <!-- Remarks & Terms -->
-                <div class="card">
-                    <div class="card-header">
-                        <h5 class="card-title mb-0"><i class="las la-file-alt me-2"></i>Additional Information</h5>
-                    </div>
-                    <div class="card-body">
-                        <div class="mb-3">
-                            <label class="form-label">Remarks</label>
-                            <textarea class="form-control" name="remarks" rows="3">{{ $jobSheet->remarks }}</textarea>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Terms & Conditions</label>
-                            <textarea class="form-control" name="terms_conditions" rows="3">{{ $jobSheet->terms_conditions }}</textarea>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" name="jobsheet_required" id="jobsheet_required" {{ $jobSheet->jobsheet_required ? 'checked' : '' }}>
-                            <label class="form-check-label fw-bold" for="jobsheet_required">
-                                Without jobsheet mobile not obtained.
-                            </label>
-                        </div>
-                    </div>
-                </div>
+                <!-- Notes Section -->
+<div class="card">
+    <div class="card-header">
+        <h5 class="card-title mb-0"><i class="las la-sticky-note me-2"></i>Notes</h5>
+    </div>
+    <div class="card-body">
+        <div class="mb-3">
+            <label class="form-label">Notes (Optional)</label>
+            <textarea class="form-control" name="notes" rows="4" placeholder="Add any additional notes or remarks...">{{ $jobSheet->notes }}</textarea>
+        </div>
+    </div>
+</div>
 
+
+               
                 <!-- Action Buttons -->
                 <div class="card">
                     <div class="card-body">

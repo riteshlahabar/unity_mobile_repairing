@@ -54,9 +54,12 @@ return new class extends Migration
             $table->text('notes')->nullable();            
             
             // Status
-            $table->enum('status', ['in_progress', 'completed', 'delivered'])->default('in_progress');
-            
-            $table->timestamps();
+           $table->string('status', 50)->nullable();
+           // warranty
+           $table->integer('warranty')->nullable();
+           $table->date('warranty_start_date')->nullable();
+           $table->string('previous_jobsheet_id', 50)->nullable();
+           $table->timestamps();
         });
     }
 

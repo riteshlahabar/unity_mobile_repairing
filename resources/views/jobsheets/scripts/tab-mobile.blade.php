@@ -1,72 +1,43 @@
-<script>    
-document.addEventListener('DOMContentLoaded', function() {
+<script>
+document.addEventListener('DOMContentLoaded', function () {
     loadCompanies();
     loadModels();
     loadColors();
     loadSeries();
 });
 
-// Validation for Mobile tab enabling Next button
-function checkMobileTabValidation() {
-    const company = document.getElementById('company')?.value;
-    const model = document.getElementById('model')?.value;
-    const color = document.getElementById('color')?.value;
-    const series = document.getElementById('series')?.value;
-    const nextBtn = document.getElementById('mobileNextBtn');
+/* ----------------------------
+  Utility & original handlers
+   (kept names so other code still works)
+   ----------------------------*/
 
-    if (!nextBtn) return; // Exit if Next button does not exist
-
-    // Enable Next button only if all required hidden inputs have values
-    if (company && model && color && series) {
-        nextBtn.disabled = false;
-        nextBtn.classList.remove('disabled');
-        console.log('✅ Mobile tab validated');
-    } else {
-        nextBtn.disabled = true;
-        nextBtn.classList.add('disabled');
-        console.log('❌ Mobile tab incomplete');
-    }
-}
-
-// Modified selectOption function for mobile tab with validation
-function selectOptionMobile(event, field, value) {
-    event.preventDefault();
-
-    // Update the hidden input
-    document.getElementById(field).value = value;
-
-    // Update the dropdown toggle button text
-    const dropdownMenu = document.getElementById(field + 'Dropdown');
-    if (!dropdownMenu) return;
-
-    const btnGroup = dropdownMenu.closest('.btn-group');
-    if (!btnGroup) return;
-
-    const button = btnGroup.querySelector('button');
-    if (button) {
-        button.innerHTML = value + ' <i class="las la-angle-down float-end"></i>';
-    }
-
-    // Check the validation on each selection
-    checkMobileTabValidation();
-}
-
-
+// Open modal for adding new master data
 let currentMasterType = '';
-
 function openAddMasterModal(type) {
     currentMasterType = type.toLowerCase();
-    document.getElementById('addMasterModalLabel').innerText = 'Add New ' + type;
-    document.getElementById('masterInputLabel').innerText = type + ' Name *';
-    document.getElementById('masterInput').value = '';
-    document.getElementById('masterInput').placeholder = 'Enter ' + type.toLowerCase() + ' name';
-    document.getElementById('masterType').value = currentMasterType;
+    const label = document.getElementById('addMasterModalLabel');
+    if (label) label.innerText = 'Add New ' + type;
+    const inputLabel = document.getElementById('masterInputLabel');
+    if (inputLabel) inputLabel.innerText = type + ' Name *';
+    const masterInput = document.getElementById('masterInput');
+    if (masterInput) {
+        masterInput.value = '';
+        masterInput.placeholder = 'Enter ' + type.toLowerCase() + ' name';
+    }
+    const masterTypeEl = document.getElementById('masterType');
+    if (masterTypeEl) masterTypeEl.value = currentMasterType;
     const feedback = document.getElementById('masterFeedback');
-    feedback.classList.add('d-none');
-    feedback.classList.remove('alert-success', 'alert-danger');
-    document.getElementById('saveMasterBtn').disabled = false;
+    if (feedback) {
+        feedback.classList.add('d-none');
+        feedback.classList.remove('alert-success', 'alert-danger');
+    }
+    const saveBtn = document.getElementById('saveMasterBtn');
+    if (saveBtn) saveBtn.disabled = false;
 
-    new bootstrap.Modal(document.getElementById('addMasterModal')).show();
+    const modalEl = document.getElementById('addMasterModal');
+    if (modalEl && typeof bootstrap !== 'undefined') {
+        new bootstrap.Modal(modalEl).show();
+    }
 }
 
 function saveMaster() {
@@ -105,12 +76,10 @@ function saveMaster() {
     .then(data => {
         const feedback = document.getElementById('masterFeedback');
         if (data.success) {
-            // Show success message
             feedback.classList.remove('d-none', 'alert-danger');
             feedback.classList.add('alert', 'alert-success');
             feedback.innerText = data.message || type.charAt(0).toUpperCase() + type.slice(1) + ' added successfully.';
             
-            // Refresh dropdowns after slight delay
             setTimeout(() => {
                 if (type == 'company') loadCompanies();
                 else if (type == 'model') loadModels();
@@ -124,7 +93,6 @@ function saveMaster() {
                 document.getElementById('saveMasterBtn').disabled = false;
             }, 1500);
         } else {
-            // Show error message (e.g. already exists)
             feedback.classList.remove('d-none', 'alert-success');
             feedback.classList.add('alert', 'alert-danger');
             feedback.innerText = data.message || 'Error: Could not add ' + type + '. It might already exist.';
@@ -140,114 +108,478 @@ function saveMaster() {
     });
 }
 
-// Example dropdown loaders — make sure these functions populate dropdowns and update hidden inputs correctly
+// Selection handler for dropdown items
+function selectOptionMobile(event, field, value) {
+    if (event && typeof event.preventDefault === 'function') event.preventDefault();
+
+    const hiddenInput = document.getElementById(field);
+    if (hiddenInput) hiddenInput.value = value;
+
+    const dropdownMenu = document.getElementById(field + 'Dropdown');
+    if (!dropdownMenu) return;
+
+    const btnGroup = dropdownMenu.closest('.btn-group');
+    if (!btnGroup) return;
+
+    const button = btnGroup.querySelector('button');
+    if (button) button.innerHTML = value + ' <i class="las la-angle-down float-end"></i>';
+
+    if (typeof checkMobileTabValidation === 'function') checkMobileTabValidation();
+}
+
+/* ----------------------------
+  Search functionality (NEW - SIMPLIFIED)
+  ----------------------------*/
+
+// Add search input event listener to all dropdowns
+// Add search input event listener to all dropdowns
+// Add search input event listener to all dropdowns
+function attachSearchListeners(dropdownId, field) {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) return;
+    
+    const searchInput = dropdown.querySelector(`.${field}-search`);
+    if (!searchInput) return;
+    
+    // Prevent dropdown close on search input interactions
+    searchInput.addEventListener('focus', (e) => e.stopPropagation());
+    searchInput.addEventListener('click', (e) => e.stopPropagation());
+    searchInput.addEventListener('keydown', (e) => e.stopPropagation());
+    
+    // Search functionality
+    searchInput.addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const items = dropdown.querySelectorAll('li.choice-item');
+        
+        items.forEach(item => {
+            const text = item.textContent.toLowerCase();
+            const shouldShow = text.includes(term);
+            
+            if (shouldShow) {
+                item.style.display = 'block';
+                item.style.visibility = 'visible';
+            } else {
+                item.style.display = 'none';
+                item.style.visibility = 'hidden';
+            }
+        });
+    });
+}
+
+
+/* ----------------------------
+  Dropdown item creation & editing (UNCHANGED)
+  ----------------------------*/
+
+function getDisplayText(item) {
+    if (typeof item === 'string') return item;
+    if (!item) return '';
+    return item.name || item.company || item.model || item.color || item.series || String(item);
+}
+
+function createDropdownItem(rawItem, field, onEditSave) {
+    const item = document.createElement('li');
+    item.className = 'choice-item dropdown-item';
+    item.role = 'button';
+
+    const displayText = getDisplayText(rawItem);
+    
+    // Container for text and icon
+    const container = document.createElement('div');
+    container.style.display = 'flex';
+    container.style.justifyContent = 'space-between';
+    container.style.alignItems = 'center';
+    container.style.width = '100%';
+    
+    const span = document.createElement('span');
+    span.className = 'dropdown-text';
+    span.textContent = displayText;
+    span.style.flex = '1';
+
+    item.setAttribute('data-value', (displayText || '').toLowerCase());
+
+    const editIcon = document.createElement('i');
+    editIcon.className = 'las la-edit edit-icon';
+    editIcon.style.cursor = 'pointer';
+    editIcon.style.marginLeft = '0.5rem';
+    editIcon.style.flexShrink = '0';
+    editIcon.setAttribute('tabindex', '0');
+    editIcon.setAttribute('role', 'button');
+    editIcon.title = 'Edit';
+
+    editIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (item.classList.contains('editing')) {
+            saveEditFlow(item, field, displayText, onEditSave);
+        } else {
+            enterEditFlow(item, field, displayText, onEditSave);
+        }
+    });
+
+    container.appendChild(span);
+    container.appendChild(editIcon);
+    item.appendChild(container);
+
+    // Click to select - use span.textContent to get CURRENT value (after edits)
+    item.addEventListener('click', (e) => {
+        if (item.classList.contains('editing')) return;
+        selectOptionMobile(e, field, span.textContent);
+    });
+
+    return item;
+}
+
+
+/* Enter edit mode */
+function enterEditFlow(item, field, oldValueString, onEditSave) {
+    if (!item) return;
+    item.classList.add('editing');
+
+    const container = item.querySelector('div');
+    const span = item.querySelector('.dropdown-text');
+    const editIcon = item.querySelector('.edit-icon');
+
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.className = 'form-control form-control-sm dropdown-edit-input';
+    input.value = (span && span.textContent) ? span.textContent : '';
+    input.style.flex = '1';
+
+    input.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            saveEditFlow(item, field, oldValueString, onEditSave);
+        } else if (e.key === 'Escape') {
+            cancelEditFlow(item, oldValueString);
+        }
+    });
+
+    if (span) container.replaceChild(input, span);
+    else container.insertBefore(input, editIcon);
+
+    if (editIcon) {
+        editIcon.className = 'las la-check edit-icon';
+        editIcon.style.cursor = 'pointer';
+    }
+
+    input.focus();
+    input.select();
+}
+
+
+/* Cancel edit (restore old display) */
+function cancelEditFlow(item, oldValueString) {
+    if (!item) return;
+    const container = item.querySelector('div');
+    const editIcon = item.querySelector('.edit-icon');
+    const currentInput = item.querySelector('input.dropdown-edit-input');
+    
+    const restoredSpan = document.createElement('span');
+    restoredSpan.className = 'dropdown-text';
+    restoredSpan.textContent = oldValueString || '';
+    restoredSpan.style.flex = '1';
+    
+    if (currentInput) container.replaceChild(restoredSpan, currentInput);
+    
+    item.classList.remove('editing');
+    if (editIcon) {
+        editIcon.className = 'las la-edit edit-icon';
+        editIcon.style.cursor = 'pointer';
+    }
+    item.setAttribute('data-value', (oldValueString || '').toLowerCase());
+}
+
+
+/* Save edit flow */
+function saveEditFlow(item, field, oldValueString, onEditSave) {
+    if (!item) return;
+    const input = item.querySelector('input.dropdown-edit-input');
+    const editIcon = item.querySelector('.edit-icon');
+    if (!input) return;
+
+    const newValue = input.value.trim();
+    if (!newValue) {
+        alert('Value cannot be empty.');
+        input.focus();
+        return;
+    }
+
+    if (editIcon) {
+        editIcon.classList.add('disabled');
+        editIcon.style.pointerEvents = 'none';
+    }
+
+    if (typeof onEditSave === 'function') {
+        onEditSave(newValue, (success, updatedValue, message) => {
+            if (editIcon) {
+                editIcon.classList.remove('disabled');
+                editIcon.style.pointerEvents = 'auto';
+            }
+            if (success) {
+                const finalValue = updatedValue || newValue;
+                const newSpan = document.createElement('span');
+                newSpan.className = 'dropdown-text';
+                newSpan.textContent = finalValue;
+                newSpan.style.flex = '1';
+                
+                const currentInput = item.querySelector('input.dropdown-edit-input');
+                if (currentInput) item.querySelector('div').replaceChild(newSpan, currentInput);
+                
+                item.classList.remove('editing');
+                if (editIcon) {
+                    editIcon.className = 'las la-edit edit-icon';
+                    editIcon.style.cursor = 'pointer';
+                }
+                
+                // Update data-value attribute for search
+                item.setAttribute('data-value', (finalValue || '').toLowerCase());
+                
+                // Update button text if this item is selected
+                const hiddenInput = document.getElementById(field);
+                if (hiddenInput && hiddenInput.value === oldValueString) {
+                    hiddenInput.value = finalValue;
+                    
+                    const dropdownDiv = document.getElementById(field + 'Dropdown');
+                    const btnGroup = dropdownDiv.closest('.btn-group');
+                    const button = btnGroup.querySelector('button');
+                    if (button) button.innerHTML = finalValue + ' <i class="las la-angle-down float-end"></i>';
+                }
+                
+                // ✅ RELOAD THE DROPDOWN DATA IMMEDIATELY
+                if (field === 'company') loadCompanies();
+                else if (field === 'model') loadModels();
+                else if (field === 'color') loadColors();
+                else if (field === 'series') loadSeries();
+                
+                if (message) alert(message);
+            } else {
+                alert(message || 'Failed to update. Please try again.');
+                const stillInput = item.querySelector('input.dropdown-edit-input');
+                if (stillInput) stillInput.focus();
+            }
+        });
+    } else {
+        const newSpan = document.createElement('span');
+        newSpan.className = 'dropdown-text';
+        newSpan.textContent = newValue;
+        newSpan.style.flex = '1';
+        
+        const currentInput = item.querySelector('input.dropdown-edit-input');
+        if (currentInput) item.querySelector('div').replaceChild(newSpan, currentInput);
+        
+        item.classList.remove('editing');
+        if (editIcon) {
+            editIcon.className = 'las la-edit edit-icon';
+            editIcon.style.cursor = 'pointer';
+        }
+        
+        item.setAttribute('data-value', (newValue || '').toLowerCase());
+        alert('Updated successfully!');
+    }
+}
+
+
+/* ----------------------------
+  AJAX saving (UNCHANGED)
+  ----------------------------*/
+function saveEditedDropdownValue(type, oldValue, newValue, done) {
+    let url, body;
+
+    switch (type) {
+        case 'company':
+            url = "{{ route('mobile.updateCompany') }}";
+            body = { old_company: oldValue, company: newValue };
+            break;
+        case 'model':
+            url = "{{ route('mobile.updateModel') }}";
+            body = { old_model: oldValue, model: newValue };
+            break;
+        case 'color':
+            url = "{{ route('mobile.updateColor') }}";
+            body = { old_color: oldValue, color: newValue };
+            break;
+        case 'series':
+            url = "{{ route('mobile.updateSeries') }}";
+            body = { old_series: oldValue, series: newValue };
+            break;
+        default:
+            done(false, null, 'Invalid type');
+            return;
+    }
+
+    fetch(url, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify(body)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(txt => {
+                try {
+                    const parsed = JSON.parse(txt);
+                    throw new Error(parsed.message || JSON.stringify(parsed));
+                } catch (e) {
+                    throw new Error(txt ? txt.substring(0, 1000) : 'Network/server error');
+                }
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        done(Boolean(data.success), data.updatedValue || newValue, data.message || 'Updated successfully.');
+    })
+    .catch(err => {
+        const msg = err && err.message ? err.message : 'Network or server error';
+        console.error('saveEditedDropdownValue error:', err);
+        done(false, null, msg);
+    });
+}
+
+/* ----------------------------
+  Loaders & populate (MODIFIED FOR SEARCH)
+  ----------------------------*/
 
 function loadCompanies() {
-    fetch("{{ route('mobile.fetchCompanies') }}")
+    fetch("{{ route('mobile.fetchCompanies') }}", { credentials: 'same-origin', headers: {'Accept': 'application/json'} })
     .then(response => response.json())
-    .then(data => {
-        const dropdown = document.getElementById('companyDropdown');
-        dropdown.innerHTML = '';
-        data.forEach(company => {
-            const item = document.createElement('li');
-            item.className = 'dropdown-item';
-            item.role = 'button';
-            item.innerText = company;
-            item.onclick = (e) => selectOption(e, 'company', company);
-            dropdown.appendChild(item);
-        });
-        const divider = document.createElement('li');
-        divider.className = 'dropdown-divider';
-        dropdown.appendChild(divider);
-        const addNew = document.createElement('li');
-        addNew.className = 'dropdown-item text-primary';
-        addNew.setAttribute('role', 'button');
-        addNew.innerHTML = '<i class="iconoir-plus me-2"></i>Add New Company';
-        addNew.onclick = () => openAddMasterModal('Company');
-        dropdown.appendChild(addNew);
-    });
+    .then(data => populateDropdown('companyDropdown', 'Company', data, 'company'))
+    .catch(err => console.error('Error loading companies:', err));
 }
 
 function loadModels() {
-    fetch("{{ route('mobile.fetchModels') }}")
+    fetch("{{ route('mobile.fetchModels') }}", { credentials: 'same-origin', headers: {'Accept': 'application/json'} })
     .then(response => response.json())
-    .then(data => {
-        const dropdown = document.getElementById('modelDropdown');
-        dropdown.innerHTML = '';
-        data.forEach(model => {
-            const item = document.createElement('li');
-            item.className = 'dropdown-item';
-            item.role = 'button';
-            item.innerText = model;
-            item.onclick = (e) => selectOption(e, 'model', model);
-            dropdown.appendChild(item);
-        });
-        const divider = document.createElement('li');
-        divider.className = 'dropdown-divider';
-        dropdown.appendChild(divider);
-        const addNew = document.createElement('li');
-        addNew.className = 'dropdown-item text-primary';
-        addNew.setAttribute('role', 'button');
-        addNew.innerHTML = '<i class="iconoir-plus me-2"></i>Add New Model';
-        addNew.onclick = () => openAddMasterModal('Model');
-        dropdown.appendChild(addNew);
-    });
+    .then(data => populateDropdown('modelDropdown', 'Model', data, 'model'))
+    .catch(err => console.error('Error loading models:', err));
 }
 
 function loadColors() {
-    fetch("{{ route('mobile.fetchColors') }}")
+    fetch("{{ route('mobile.fetchColors') }}", { credentials: 'same-origin', headers: {'Accept': 'application/json'} })
     .then(response => response.json())
-    .then(data => {
-        const dropdown = document.getElementById('colorDropdown');
-        dropdown.innerHTML = '';
-        data.forEach(color => {
-            const item = document.createElement('li');
-            item.className = 'dropdown-item';
-            item.role = 'button';
-            item.innerText = color;
-            item.onclick = (e) => selectOption(e, 'color', color);
-            dropdown.appendChild(item);
-        });
-        const divider = document.createElement('li');
-        divider.className = 'dropdown-divider';
-        dropdown.appendChild(divider);
-        const addNew = document.createElement('li');
-        addNew.className = 'dropdown-item text-primary';
-        addNew.setAttribute('role', 'button');
-        addNew.innerHTML = '<i class="iconoir-plus me-2"></i>Add New Color';
-        addNew.onclick = () => openAddMasterModal('Color');
-        dropdown.appendChild(addNew);
-    });
+    .then(data => populateDropdown('colorDropdown', 'Color', data, 'color'))
+    .catch(err => console.error('Error loading colors:', err));
 }
 
 function loadSeries() {
-    fetch("{{ route('mobile.fetchSeries') }}")
+    fetch("{{ route('mobile.fetchSeries') }}", { credentials: 'same-origin', headers: {'Accept': 'application/json'} })
     .then(response => response.json())
-    .then(data => {
-        const dropdown = document.getElementById('seriesDropdown');
-        dropdown.innerHTML = '';
-        data.forEach(series => {
-            const item = document.createElement('li');
-            item.className = 'dropdown-item';
-            item.role = 'button';
-            item.innerText = series;
-            item.onclick = (e) => selectOption(e, 'series', series);
-            dropdown.appendChild(item);
-        });
-        const divider = document.createElement('li');
-        divider.className = 'dropdown-divider';
-        dropdown.appendChild(divider);
-        const addNew = document.createElement('li');
-        addNew.className = 'dropdown-item text-primary';
-        addNew.setAttribute('role', 'button');
-        addNew.innerHTML = '<i class="iconoir-plus me-2"></i>Add New Series';
-        addNew.onclick = () => openAddMasterModal('Series');
-        dropdown.appendChild(addNew);
-    });
+    .then(data => populateDropdown('seriesDropdown', 'Series', data, 'series'))
+    .catch(err => console.error('Error loading series:', err));
 }
 
-document.getElementById('imei').addEventListener('input', function(e) {
-    this.value = this.value.replace(/[^0-9]/g, '');
-});
+// Populate dropdown with search capability
+function populateDropdown(dropdownId, displayName, items, field) {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) {
+        console.warn(`[DEBUG] populateDropdown: element not found: ${dropdownId}`);
+        return;
+    }
 
+    // Find existing search input to preserve it
+    let searchInput = dropdown.querySelector(`.${field}-search`);
+    const hasSearch = !!searchInput;
+
+    // Clear dropdown but keep search if exists
+    if (!hasSearch) {
+        dropdown.innerHTML = `
+            <li class="px-2 py-2 border-bottom">
+                <input type="text" class="form-control form-control-sm ${field}-search" placeholder="🔍 Search..." autocomplete="off">
+            </li>
+        `;
+    } else {
+        // Remove only items, keep search
+        dropdown.querySelectorAll('li.choice-item, li.dropdown-divider, li.dropdown-item.text-primary').forEach(el => el.remove());
+    }
+
+    // Re-fetch search input
+    searchInput = dropdown.querySelector(`.${field}-search`);
+
+    // Add items
+    if (Array.isArray(items)) {
+        items.forEach(rawItem => {
+            const itemNode = createDropdownItem(rawItem, field, (newVal, done) => {
+                const oldValueString = getDisplayText(rawItem);
+                saveEditedDropdownValue(field, oldValueString, newVal, done);
+            });
+            dropdown.appendChild(itemNode);
+        });
+    }
+
+    // Add divider
+    const divider = document.createElement('li');
+    divider.className = 'dropdown-divider';
+    dropdown.appendChild(divider);
+
+    // Add "Add New" option
+    const addNew = document.createElement('li');
+    addNew.className = 'dropdown-item text-primary';
+    addNew.setAttribute('role', 'button');
+    addNew.innerHTML = `<i class="iconoir-plus me-2"></i>Add New ${displayName}`;
+    addNew.onclick = (e) => {
+        e.stopPropagation();
+        openAddMasterModal(displayName);
+    };
+    dropdown.appendChild(addNew);
+
+    // Attach search listeners (IMPORTANT)
+    attachSearchListeners(dropdownId, field);
+}
+
+function uploadBulkMaster() {
+    const fileInput = document.getElementById('bulkMasterFile');
+    const feedback = document.getElementById('bulkMasterUploadFeedback');
+    feedback.classList.add('d-none');
+    feedback.classList.remove('alert-success', 'alert-danger');
+    feedback.textContent = '';
+
+    if (!fileInput || !fileInput.files.length) {
+        feedback.textContent = 'Please select an Excel file.';
+        feedback.classList.remove('d-none');
+        feedback.classList.add('alert-danger');
+        return;
+    }
+    const file = fileInput.files[0];
+    if (!file.name.match(/\.(xlsx|xls)$/i)) {
+        feedback.textContent = 'File must be .xlsx or .xls';
+        feedback.classList.remove('d-none');
+        feedback.classList.add('alert-danger');
+        return;
+    }
+
+    let formData = new FormData();
+    formData.append('file', file);
+
+    fetch("{{ route('mobile.bulkMasterUpload') }}", {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            feedback.textContent = data.message || 'File uploaded and data imported successfully.';
+            feedback.classList.remove('d-none', 'alert-danger');
+            feedback.classList.add('alert-success');
+            loadCompanies();
+            loadModels();
+            loadColors();
+            loadSeries();
+        } else {
+            feedback.textContent = data.message || 'Upload failed or file format invalid.';
+            feedback.classList.remove('d-none', 'alert-success');
+            feedback.classList.add('alert-danger');
+        }
+    })
+    .catch(() => {
+        feedback.textContent = 'Network or server error during file upload.';
+        feedback.classList.remove('d-none', 'alert-success');
+        feedback.classList.add('alert-danger');
+    });
+}
 </script>

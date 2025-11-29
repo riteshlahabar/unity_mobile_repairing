@@ -2,37 +2,50 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\WhatsAppNotification;
+use App\Repositories\Contracts\FestivalMessageRepositoryInterface;
+use App\Services\WhatsAppNotificationService;
+use App\Services\FestivalMessageService;
 use Illuminate\Http\Request;
-use App\Models\Customer;
-use App\Models\FestivalMessage;
-use App\Services\WhatsAppService;
 use Illuminate\Support\Facades\Log;
+use App\Models\Customer;
 
+/**
+ * WhatsApp Controller
+ * 
+ * Handles WhatsApp notification templates and festival messaging
+ * 
+ * @see \App\Services\WhatsAppNotificationService - Notification templates
+ * @see \App\Services\FestivalMessageService - Festival messaging
+ */
 class WhatsAppController extends Controller
 {
-    // Show service notification page
+    public function __construct(
+        protected WhatsAppNotificationService $notificationService,
+        protected FestivalMessageService $festivalService,
+        protected FestivalMessageRepositoryInterface $festivalRepository
+    ) {}
+
+    // ========================================
+    // SERVICE NOTIFICATION METHODS
+    // ========================================
+
+    /**
+     * Show service notification page
+     * 
+     * @return \Illuminate\View\View
+     */
     public function service()
     {
-        $notifications = WhatsAppNotification::latest()->get();
+        $notifications = $this->notificationService->getAllNotifications();
         return view('whatsapp.service', compact('notifications'));
     }
 
-    public function festival()
-{
-    $totalCustomers = \App\Models\Customer::count();
-    $sentMessages = \App\Models\FestivalMessage::where('status', 'sent')->count();
-    $failedMessages = \App\Models\FestivalMessage::where('status', 'failed')->count();
-    
-    $messages = \App\Models\FestivalMessage::with('customer')
-        ->latest()
-        ->paginate(20);
-    
-    return view('whatsapp.festival', compact('totalCustomers', 'sentMessages', 'failedMessages', 'messages'));
-}
-
-
-    // Store notification
+    /**
+     * Store notification template
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function storeNotification(Request $request)
     {
         try {
@@ -41,20 +54,21 @@ class WhatsAppController extends Controller
                 'notification_message' => 'required|string',
             ]);
 
-            $notification = WhatsAppNotification::create([
+            $result = $this->notificationService->createNotification([
                 'title' => $validated['notification_title'],
                 'message' => $validated['notification_message'],
             ]);
 
+            return response()->json($result, 201);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
             return response()->json([
-                'success' => true,
-                'message' => 'Notification saved successfully!',
-                'notification' => $notification
-            ], 201);
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
 
         } catch (\Exception $e) {
-            \Log::error('Notification save error: ' . $e->getMessage());
-            
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
@@ -62,31 +76,29 @@ class WhatsAppController extends Controller
         }
     }
 
-    // Update notification
+    /**
+     * Update notification template
+     * 
+     * @param Request $request
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function updateNotification(Request $request, $id)
     {
         try {
-            $notification = WhatsAppNotification::findOrFail($id);
-
             $validated = $request->validate([
                 'notification_title' => 'required|string|max:255',
                 'notification_message' => 'required|string',
             ]);
 
-            $notification->update([
+            $result = $this->notificationService->updateNotification($id, [
                 'title' => $validated['notification_title'],
                 'message' => $validated['notification_message'],
             ]);
 
-            return response()->json([
-                'success' => true,
-                'message' => 'Notification updated successfully!',
-                'notification' => $notification
-            ]);
+            return response()->json($result);
 
         } catch (\Exception $e) {
-            \Log::error('Notification update error: ' . $e->getMessage());
-            
             return response()->json([
                 'success' => false,
                 'message' => 'Error: ' . $e->getMessage()
@@ -94,17 +106,17 @@ class WhatsAppController extends Controller
         }
     }
 
-    // Delete notification
+    /**
+     * Delete notification template
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function deleteNotification($id)
     {
         try {
-            $notification = WhatsAppNotification::findOrFail($id);
-            $notification->delete();
-
-            return response()->json([
-                'success' => true,
-                'message' => 'Notification deleted successfully!'
-            ]);
+            $result = $this->notificationService->deleteNotification($id);
+            return response()->json($result);
 
         } catch (\Exception $e) {
             return response()->json([
@@ -114,95 +126,128 @@ class WhatsAppController extends Controller
         }
     }
 
-    // Send WhatsApp message
-    public function sendMessage(Request $request)
+    // ========================================
+    // FESTIVAL MESSAGE METHODS
+    // ========================================
+
+    /**
+     * Show festival message page
+     * 
+     * @return \Illuminate\View\View
+     */
+    public function festival()
     {
-        // Implement WhatsApp API integration here
-        return response()->json([
-            'success' => true,
-            'message' => 'Message sent successfully!'
+        $stats = $this->festivalService->getDashboardStats();
+        $messages = $this->festivalRepository->getRecentMessages(20);
+        
+        return view('whatsapp.festival', [
+            'totalCustomers' => $stats['totalCustomers'],
+            'sentMessages' => $stats['sentMessages'],
+            'failedMessages' => $stats['failedMessages'],
+            'messages' => $messages,
         ]);
     }
 
+    /**
+     * Send festival messages
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
     public function sendFestivalMessages(Request $request)
-{
-    try {
-        $validated = $request->validate([
-            'message' => 'required|string|max:1000',
-            'send_to' => 'required|in:all,selected',
-            'from_date' => 'required_if:send_to,selected|date',
-            'to_date' => 'required_if:send_to,selected|date',
-        ]);
+    {
+        \Log::info('Festival send request received:', $request->all());
 
-        $message = $validated['message'];
-        $whatsappService = new WhatsAppService();
-        
-        // Get customers
-        if ($validated['send_to'] == 'all') {
-            $customers = Customer::all();
-        } else {
-            $customers = Customer::whereDate('created_at', '>=', $validated['from_date'])
-                ->whereDate('created_at', '<=', $validated['to_date'])
-                ->get();
+        try {
+            $rules = [
+                'send_to' => 'required|in:all,selected',
+                'message' => 'required|string|max:1000',
+                'campaign_name' => 'nullable|string|max:255',
+            ];
+
+            if ($request->input('send_to') === 'selected') {
+                $rules['from_date'] = 'required|date';
+                $rules['to_date'] = 'required|date';
+            }
+
+            $validated = $request->validate($rules);
+
+            // Build customer list
+            $customerIds = [];
+            if ($validated['send_to'] === 'all') {
+                $customerIds = Customer::whereNotNull('whatsapp_no')->pluck('id')->toArray();
+            } else {
+                $customerIds = Customer::whereNotNull('whatsapp_no')
+                    ->whereBetween('created_at', [
+                        $validated['from_date'],
+                        $validated['to_date'],
+                    ])->pluck('id')->toArray();
+            }
+
+            $campaignName = $request->input('campaign_name', null);
+
+            // IMPORTANT: call service, no hardcoded numbers here
+            $result = $this->festivalService->sendFestivalMessages(
+                message: $validated['message'],
+                sendTo: $validated['send_to'],
+                customerIds: $customerIds,
+                campaignName: $campaignName
+            );
+
+            return response()->json($result, 200);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation error',
+                'errors' => $e->errors()
+            ], 422);
+        } catch (\Exception $e) {
+            \Log::error('Festival Message Send Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
+    }
 
-        $successCount = 0;
-        $failCount = 0;
+    /**
+     * Get customers for selection (AJAX)
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getFestivalCustomers()
+    {
+        $customers = $this->festivalService->getCustomersForSelection();
+        return response()->json($customers);
+    }
 
-        foreach ($customers as $customer) {
-            $result = $whatsappService->sendMessage($customer->whatsapp_no, $message);
-
-            FestivalMessage::create([
-                'customer_id' => $customer->id,
-                'message' => $message,
-                'status' => $result['success'] ? 'sent' : 'failed',
-                'response' => json_encode($result),
+    /**
+     * Get customer count by date range (AJAX)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCustomerCountByDate(Request $request)
+    {
+        try {
+            $request->validate([
+                'from_date' => 'required|date',
+                'to_date' => 'required|date',
             ]);
 
-            if ($result['success']) {
-                $successCount++;
-            } else {
-                $failCount++;
-            }
+            $count = $this->festivalService->getCustomerCountByDateRange(
+                $request->from_date,
+                $request->to_date
+            );
+
+            return response()->json(['count' => $count]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
         }
-
-        return response()->json([
-            'success' => true,
-            'message' => "Messages sent successfully! Success: {$successCount}, Failed: {$failCount}",
-            'success_count' => $successCount,
-            'fail_count' => $failCount,
-        ]);
-
-    } catch (\Exception $e) {
-        Log::error('Festival Message Send Error: ' . $e->getMessage());
-        return response()->json([
-            'success' => false,
-            'message' => 'Error: ' . $e->getMessage()
-        ], 500);
     }
-}
-
-
-// Get customers for selection
-public function getFestivalCustomers()
-{
-    $customers = Customer::select('id', 'customer_id', 'full_name', 'contact_no', 'whatsapp_no')
-        ->orderBy('full_name')
-        ->get();
-    
-    return response()->json($customers);
-}
-
-// Get customer count by date range
-public function getCustomerCountByDate(Request $request)
-{
-    $fromDate = $request->from_date;
-    $toDate = $request->to_date;
-    
-    $count = Customer::whereDate('created_at', '>=', $fromDate)
-        ->whereDate('created_at', '<=', $toDate)
-        ->count();
-    
-    return response()->json(['count' => $count]);
-}
 }
