@@ -26,7 +26,14 @@ return new class extends Migration
             $table->unsignedInteger('failed_messages')->default(0);
             
             // Overall status
+<<<<<<< HEAD
             $table->string('status', 50)->default('pending');
+=======
+            $table->enum('status', ['pending', 'processing', 'completed', 'failed'])->default('pending');
+            
+            // Additional response/error details
+            $table->json('response_data')->nullable(); // WhatsApp API response
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
             
             // Timestamps
             $table->timestamps();

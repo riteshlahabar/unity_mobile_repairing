@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Services\Contracts\RevenueServiceInterface;
 use Illuminate\Http\Request;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 
 class RevenueController extends Controller
 {
@@ -25,7 +28,11 @@ class RevenueController extends Controller
     /**
      * Verify PIN for revenue access
      */
+<<<<<<< HEAD
    public function verifyPin(Request $request)  // ← FIXED: Added Request parameter
+=======
+    public function verifyPin(Request $request)
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     {
         $request->validate([
             'pin' => 'required|string|size:4'

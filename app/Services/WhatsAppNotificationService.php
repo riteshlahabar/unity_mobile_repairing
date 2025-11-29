@@ -30,9 +30,12 @@ class WhatsAppNotificationService
     public function createNotification(array $data): array
     {
         try {
+<<<<<<< HEAD
             
             $data['message'] = preg_replace('#<\/?p>#', "\n", $data['message']);
             $data['message'] = trim($data['message']);
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
             $notification = $this->repository->createNotification($data);
 
             return [
@@ -57,9 +60,12 @@ class WhatsAppNotificationService
     public function updateNotification(int $id, array $data): array
     {
         try {
+<<<<<<< HEAD
             
             $data['message'] = preg_replace('#<\/?p>#', "\n", $data['message']);
             $data['message'] = trim($data['message']);
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
             $notification = $this->repository->updateNotification($id, $data);
 
             return [

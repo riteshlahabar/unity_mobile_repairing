@@ -89,7 +89,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/festival/send', [WhatsAppController::class, 'sendFestivalMessages'])->name('festival.send');
         Route::get('/festival/customers', [WhatsAppController::class, 'getFestivalCustomers'])->name('festival.customers');
         Route::post('/festival/count-by-date', [WhatsAppController::class, 'getCustomerCountByDate'])->name('whatsapp.festival.countByDate');
+<<<<<<< HEAD
        
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     });
 
     // Settings
@@ -98,7 +101,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/settings/terms-conditions', [SettingController::class, 'updateTermsConditions'])->name('setting.updateTermsConditions');
     Route::put('/settings/remarks', [SettingController::class, 'updateRemarks'])->name('setting.updateRemarks');
     Route::put('/settings/security', [SettingController::class, 'updateSecurity'])->name('setting.updateSecurity');
+<<<<<<< HEAD
     Route::post('/settings/change-pin', [SettingController::class, 'changePin'])->name('setting.changePin');
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 
     // Mobile details
     Route::prefix('mobile-details')->name('mobile.')->group(function () {

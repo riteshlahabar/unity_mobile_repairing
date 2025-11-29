@@ -58,6 +58,7 @@ class JobSheetNotificationService implements NotificationServiceInterface
     public function sendDeviceReceived(JobSheet $jobSheet): array
     {
         try {
+<<<<<<< HEAD
            // Generate PDF once and check success
 $pdfData = $this->pdfService->generate($jobSheet);
 
@@ -87,6 +88,30 @@ if ($pdfData['success']) {
     );
 }
 
+=======
+            // Generate PDF
+            $pdfData = $this->pdfService->generate($jobSheet);
+
+            // Send WhatsApp message with jobsheet details
+            $this->whatsappService->sendByTitle('Device Received', $jobSheet->customer->whatsapp_no, [
+                'customer_name' => $jobSheet->customer->full_name,
+                'customer_id' => $jobSheet->customer->customer_id,
+                'jobsheet_id' => $jobSheet->jobsheet_id,
+                'device' => $jobSheet->company . ' ' . $jobSheet->model,
+                'problem' => $jobSheet->problem_description,
+                'estimated_cost' => number_format($jobSheet->estimated_cost, 2),
+                'advance' => number_format($jobSheet->advance, 2),
+                'balance' => number_format($jobSheet->balance, 2),
+            ]);
+
+            // Send PDF file
+            $pdfData = $this->pdfService->generate($jobSheet);
+            $this->whatsappService->sendFile(
+                $jobSheet->customer->whatsapp_no,
+                $pdfData['path'],
+                $pdfData['name']
+            );
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 
             Log::info('Device Received Message Sent', [
                 'jobsheet_id' => $jobSheet->jobsheet_id,

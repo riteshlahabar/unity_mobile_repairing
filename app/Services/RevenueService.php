@@ -8,12 +8,17 @@ use App\Services\Contracts\RevenueServiceInterface;
 use App\Repositories\Contracts\ProfitRepositoryInterface;
 use App\Repositories\Contracts\JobSheetRepositoryInterface;
 use Illuminate\Support\Facades\Log;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
 
 
+=======
+use Carbon\Carbon;
+
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 class RevenueService implements RevenueServiceInterface
 {
     public function __construct(
@@ -24,6 +29,7 @@ class RevenueService implements RevenueServiceInterface
     /**
      * Verify PIN for revenue access
      */
+<<<<<<< HEAD
     public function verifyPin(string $pin): array  // ← EXACT SIGNATURE
     {
         $user = Auth::user();  // ← NOW WORKS
@@ -46,6 +52,42 @@ class RevenueService implements RevenueServiceInterface
             'message' => $valid ? 'Access granted' : 'Invalid PIN'
         ];
     }
+=======
+    public function verifyPin(string $pin): array
+{
+    try {
+        $user = auth()->user();
+
+        // Get PIN from user record
+        $userPin = $user->revenue_pin ?? config('services.revenue_pin', '1234');
+
+        if ($pin === $userPin) {
+            return [
+                'success' => true,
+                'message' => 'PIN verified successfully'
+            ];
+        }
+
+        Log::warning('Invalid revenue PIN attempted', [
+            'user_id' => $user->id,
+            'pin' => substr($pin, 0, 1) . '***'
+        ]);
+
+        return [
+            'success' => false,
+            'message' => 'Invalid PIN'
+        ];
+
+    } catch (\Exception $e) {
+        Log::error('PIN verification error: ' . $e->getMessage());
+        return [
+            'success' => false,
+            'message' => 'PIN verification failed'
+        ];
+    }
+}
+
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 
     /**
      * Get complete revenue data including profit summary and details

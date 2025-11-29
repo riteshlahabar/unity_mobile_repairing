@@ -5,10 +5,13 @@ namespace App\Http\Controllers;
 use App\Services\SettingsService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+<<<<<<< HEAD
 use Illuminate\Support\Facades\Auth;  
 use Illuminate\Support\Facades\Hash;           // ← ADD THIS
 use Illuminate\Validation\ValidationException; // ← ADD THIS
 use App\Models\User;  
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 
 /**
  * Setting Controller
@@ -145,6 +148,7 @@ class SettingController extends Controller
                 $validated['current_password'],
                 $validated['new_password']
             );
+<<<<<<< HEAD
 
             return response()->json($result);
 
@@ -162,6 +166,68 @@ class SettingController extends Controller
                 'message' => 'Error updating password'
             ], 500);
         }
+=======
+
+            return response()->json($result);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Password Update Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error updating password'
+            ], 500);
+        }
+    }
+    
+    /**
+ * Change revenue PIN
+ */
+public function changeRevenuePin(Request $request)
+{
+    $request->validate([
+        'current_pin' => 'required|string',
+        'new_pin' => 'required|string|size:4|different:current_pin',
+        'confirm_pin' => 'required|string|same:new_pin',
+    ]);
+
+    try {
+        $user = auth()->user();
+
+        // Verify current PIN
+        if ($user->revenue_pin !== $request->current_pin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Current PIN is incorrect'
+            ], 422);
+        }
+
+        // Update PIN
+        $user->update(['revenue_pin' => $request->new_pin]);
+
+        // Update config
+        config(['services.revenue_pin' => $request->new_pin]);
+
+        Log::info('Revenue PIN changed by user', ['user_id' => $user->id]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Revenue PIN changed successfully'
+        ]);
+
+    } catch (\Exception $e) {
+        Log::error('Error changing revenue PIN: ' . $e->getMessage());
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ], 500);
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     }
     
        public function changePin(Request $request)
@@ -209,5 +275,7 @@ class SettingController extends Controller
             ], 500);
         }
     }
+
+}
 
 }

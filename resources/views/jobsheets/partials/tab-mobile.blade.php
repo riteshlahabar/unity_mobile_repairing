@@ -39,8 +39,13 @@
             </div>
         </div>
 
+<<<<<<< HEAD
         <!-- Model Dropdown -->
         <div class="row">
+=======
+            <!-- Model Dropdown -->
+            <div class="row">
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
             <div class="col-md-6">
                 <div class="mb-3">
                     <label class="form-label">Model <span class="text-danger">*</span></label>
@@ -48,6 +53,7 @@
                         <button type="button" class="btn btn-outline-primary dropdown-toggle text-start" data-bs-toggle="dropdown" aria-expanded="false" id="modelDropdownBtn">
                             Select Model <i class="las la-angle-down float-end"></i>
                         </button>
+<<<<<<< HEAD
                         <ul class="dropdown-menu w-100 dropdown-search-menu" id="modelDropdown" role="menu">
                             <li class="px-2 py-2 border-bottom">
                                 <input type="text" class="form-control form-control-sm model-search" placeholder="Search..." autocomplete="off">
@@ -101,7 +107,61 @@
                     <div id="bulkMasterUploadFeedback" class="alert d-none mt-1 mb-0 p-1" style="font-size:13px;"></div>
                 </div>
             </div>
+=======
+                        <ul class="dropdown-menu w-100" id="modelDropdown" role="menu">
+                            <!-- Dynamically loaded -->
+                        </ul>
+                    </div>
+                    <input type="hidden" id="model" name="model" required>
+                </div>
+            </div>
+        
+            <!-- Color Dropdown -->
+            <div class="col-md-6">
+                <div class="mb-3">
+                    <label class="form-label">Color <span class="text-danger">*</span></label>
+                    <div class="btn-group w-100">
+                        <button type="button" class="btn btn-outline-primary dropdown-toggle text-start" data-bs-toggle="dropdown" aria-expanded="false" id="colorDropdownBtn">
+                            Select Color <i class="las la-angle-down float-end"></i>
+                        </button>
+                        <ul class="dropdown-menu w-100" id="colorDropdown" role="menu">
+                            <!-- Dynamically loaded -->
+                        </ul>
+                    </div>
+                    <input type="hidden" id="color" name="color" required>
+                </div>
+            </div>
+            </div>
+
+            
+
+        <!-- IMEI Number + Excel Upload Row -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label for="imei" class="form-label">
+                IMEI Number <small class="text-muted">(Optional)</small>
+            </label>
+            <input type="text" class="form-control" id="imei" name="imei" placeholder="Enter IMEI number" maxlength="15">
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
         </div>
+    </div>
+    <div class="col-md-6">
+        <div class="mb-3">
+            <label class="form-label d-block">&nbsp;</label> <!-- Empty label for alignment -->
+            <div class="input-group">
+                <span class="input-group-text" title="Attach Excel file">
+                    <i class="las la-paperclip"></i>
+                </span>
+                <input type="file" class="form-control" id="bulkMasterFile" accept=".xlsx,.xls" aria-label="Upload Excel File">
+                <button type="button" class="btn btn-outline-success" onclick="uploadBulkMaster()">Upload</button>
+            </div>
+            <small class="text-muted">Upload Excel with Columns: company, series, model, color</small>
+            <div id="bulkMasterUploadFeedback" class="alert d-none mt-1 mb-0 p-1" style="font-size:13px;"></div>
+        </div>
+    </div>
+</div>
+
     </fieldset>
 
     <div class="mt-3">
@@ -134,6 +194,7 @@
         </div>
     </div>
 </div>
+<<<<<<< HEAD
 
 <style>
 /* Dropdown search styling */
@@ -200,3 +261,5 @@
     scroll-behavior: smooth;
 }
 </style>
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698

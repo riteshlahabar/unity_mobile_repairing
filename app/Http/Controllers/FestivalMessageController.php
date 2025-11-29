@@ -2,11 +2,17 @@
 
 namespace App\Http\Controllers;
 
+<<<<<<< HEAD
 use App\Services\FestivalMessageService;
 use App\Models\Customer;
+=======
+use App\Repositories\Contracts\FestivalMessageRepositoryInterface;
+use App\Services\FestivalMessageService;
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 use Illuminate\Http\Request;
 
 /**
+<<<<<<< HEAD
  * FestivalMessageController
  *
  * Responsibility: Handle HTTP requests and delegate to FestivalMessageService
@@ -29,10 +35,34 @@ class FestivalMessageController extends Controller
     /**
      * Show the festival messages page
      *
+=======
+ * Festival Message Controller
+ * 
+ * Handles bulk festival message sending to customers
+ * 
+ * @see \App\Repositories\Contracts\FestivalMessageRepositoryInterface - Data access
+ * @see \App\Services\FestivalMessageService - Business logic
+ * 
+ * Dependencies injected via constructor:
+ * - FestivalMessageRepositoryInterface $repository
+ * - FestivalMessageService $service
+ */
+class FestivalMessageController extends Controller
+{
+    public function __construct(
+        protected FestivalMessageRepositoryInterface $repository,
+        protected FestivalMessageService $service
+    ) {}
+
+    /**
+     * Show festival message page with statistics
+     * 
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
      * @return \Illuminate\View\View
      */
     public function index()
     {
+<<<<<<< HEAD
         $messages = $this->festivalMessageService->getCampaignsPaginated(perPage: 10);
         $totalCustomers = Customer::count();
 
@@ -46,6 +76,29 @@ class FestivalMessageController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function send(Request $request)
+=======
+        // Get dashboard stats
+        $stats = $this->service->getDashboardStats();
+        
+        // Get recent messages
+        $messages = $this->repository->getRecentMessages(20);
+        
+        return view('festival.index', [
+            'totalCustomers' => $stats['totalCustomers'],
+            'sentMessages' => $stats['sentMessages'],
+            'failedMessages' => $stats['failedMessages'],
+            'messages' => $messages,
+        ]);
+    }
+
+    /**
+     * Send festival messages to customers
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function sendMessages(Request $request)
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     {
         try {
             $sendTo = $request->input('send_to');
@@ -57,6 +110,7 @@ class FestivalMessageController extends Controller
                 'sent_date' => 'required|date',
             ];
 
+<<<<<<< HEAD
             // Only validate dates if send_to is 'selected'
             if ($sendTo === 'selected') {
                 $rules['from_date'] = 'required|date';
@@ -86,6 +140,26 @@ class FestivalMessageController extends Controller
 
         } catch (\InvalidArgumentException $e) {
             // Validation error
+=======
+            $result = $this->service->sendFestivalMessages(
+                $validated['message'],
+                $validated['send_to'],
+                $validated['customer_ids'] ?? []
+            );
+
+            return response()->json($result);
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Validation failed',
+                'errors' => $e->errors()
+            ], 422);
+
+        } catch (\Exception $e) {
+            Log::error('Festival Message Send Error: ' . $e->getMessage());
+            
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()
@@ -111,6 +185,7 @@ class FestivalMessageController extends Controller
     }
 
     /**
+<<<<<<< HEAD
      * Get customer count by date range (AJAX)
      *
      * @param Request $request
@@ -138,5 +213,15 @@ class FestivalMessageController extends Controller
                 'count' => 0
             ], 422);
         }
+=======
+     * Get customers for selection (AJAX)
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCustomers()
+    {
+        $customers = $this->service->getCustomersForSelection();
+        return response()->json($customers);
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     }
 }

@@ -7,13 +7,20 @@ use App\Repositories\Contracts\FestivalMessageRepositoryInterface;
 use App\Services\WhatsAppService;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Collection;
+<<<<<<< HEAD
 use App\Models\FestivalMessage;
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 
 class FestivalMessageService
 {
     public function __construct(
         protected CustomerRepositoryInterface $customerRepository,
+<<<<<<< HEAD
         protected FestivalMessageRepositoryInterface $festivalRepository,
+=======
+        protected FestivalMessageRepositoryInterface $festivalMessageRepository,
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
         protected WhatsAppService $whatsappService
     ) {}
 
@@ -24,8 +31,13 @@ class FestivalMessageService
     {
         return [
             'totalCustomers' => $this->customerRepository->all()->count(),
+<<<<<<< HEAD
             'sentMessages' => $this->festivalRepository->getSentCount(),
             'failedMessages' => $this->festivalRepository->getFailedCount(),
+=======
+            'sentMessages' => $this->festivalMessageRepository->getSentCount(),
+            'failedMessages' => $this->festivalMessageRepository->getFailedCount(),
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
         ];
     }
 
@@ -63,7 +75,11 @@ class FestivalMessageService
                 $result = $this->whatsappService->sendMessage($customer->whatsapp_no, $message);
 
                 // Save message record
+<<<<<<< HEAD
                 $this->festivalRepository->createMessage(
+=======
+                $this->festivalMessageRepository->createMessage(
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
                     $customer->id,
                     $message,
                     $result['success'],
@@ -152,6 +168,7 @@ class FestivalMessageService
                 ];
             });
     }
+<<<<<<< HEAD
     
     /**
      * Persist campaign summary
@@ -245,4 +262,6 @@ class FestivalMessageService
     ];
 }
 
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 }

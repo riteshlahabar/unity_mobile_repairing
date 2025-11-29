@@ -5,7 +5,10 @@ namespace App\Services;
 use App\Repositories\Contracts\JobSheetRepositoryInterface;
 use App\Services\Contracts\FileStorageServiceInterface;
 use App\Services\Contracts\NotificationServiceInterface;
+<<<<<<< HEAD
 use App\Services\Contracts\PdfServiceInterface;
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 use Illuminate\Support\Facades\Log;
 
 class JobSheetService
@@ -13,8 +16,12 @@ class JobSheetService
     public function __construct(
         protected JobSheetRepositoryInterface $repository,
         protected FileStorageServiceInterface $fileStorage,
+<<<<<<< HEAD
         protected NotificationServiceInterface $notification,
         protected PdfServiceInterface $pdfService
+=======
+        protected NotificationServiceInterface $notification
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     ) {}
 
     public function createJobSheet(array $validated, array $files = []): array
@@ -33,6 +40,7 @@ class JobSheetService
             $jobSheet = $this->repository->create($validated);
 
             Log::info('JobSheet Created Successfully:', ['jobsheet_id' => $jobSheet->jobsheet_id]);
+<<<<<<< HEAD
             
             $pdfResult = app(\App\Services\Contracts\PdfServiceInterface::class)->generate($jobSheet);
 
@@ -45,6 +53,8 @@ if (!$pdfResult['success']) {
 // Send notification with PDF
 $this->notification->sendDeviceReceived($jobSheet, $pdfResult['url'] ?? null);
 
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 
             // Handle device photos
             if (!empty($files)) {
@@ -52,7 +62,11 @@ $this->notification->sendDeviceReceived($jobSheet, $pdfResult['url'] ?? null);
             }
 
             // Send notification
+<<<<<<< HEAD
             //$this->notification->sendDeviceReceived($jobSheet);
+=======
+            $this->notification->sendDeviceReceived($jobSheet);
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 
             return [
                 'success' => true,

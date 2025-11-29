@@ -6,7 +6,11 @@
     <title>JobSheet - {{ $jobSheet->jobsheet_id }}</title>
     <style>
     @page {
+<<<<<<< HEAD
         margin-top: 3.1in;
+=======
+        margin-top: 2in;
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
         margin-right: 1.5in;
         margin-bottom: 2in;
         margin-left: 1in;
@@ -267,7 +271,11 @@
     </div>
 
    
+<<<<<<< HEAD
     <!-- Signatures 
+=======
+    <!-- Signatures -->
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     <div class="sign-row" style="margin-top: 50px;">
     <div class="signature-box" style="text-align: left;">
         Customer Sign.
@@ -276,8 +284,13 @@
         For {{ $businessInfo->business_name ?? 'Business Name' }}
     </div>
 </div>
+<<<<<<< HEAD
 -->
 
+=======
+
+
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 </body>
 
 </html>

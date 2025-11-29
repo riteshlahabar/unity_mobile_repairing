@@ -156,6 +156,7 @@ class WhatsAppController extends Controller
      */
     public function sendFestivalMessages(Request $request)
     {
+<<<<<<< HEAD
         \Log::info('Festival send request received:', $request->all());
 
         try {
@@ -249,5 +250,71 @@ class WhatsAppController extends Controller
                 'message' => $e->getMessage()
             ], 500);
         }
+=======
+        try {
+            $validated = $request->validate([
+                'message' => 'required|string|max:1000',
+                'send_to' => 'required|in:all,selected',
+                'from_date' => 'required_if:send_to,selected|date',
+                'to_date' => 'required_if:send_to,selected|date',
+            ]);
+
+            $result = $this->festivalService->sendFestivalMessagesByCriteria(
+                $validated['message'],
+                $validated['send_to'],
+                $validated['from_date'] ?? null,
+                $validated['to_date'] ?? null
+            );
+
+            return response()->json($result);
+
+        } catch (\Exception $e) {
+            Log::error('Festival Message Send Error: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Error: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * Get customers for selection (AJAX)
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getFestivalCustomers()
+    {
+        $customers = $this->festivalService->getCustomersForSelection();
+        return response()->json($customers);
+    }
+
+    /**
+     * Get customer count by date range (AJAX)
+     * 
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getCustomerCountByDate(Request $request)
+    {
+        try {
+            $request->validate([
+                'from_date' => 'required|date',
+                'to_date' => 'required|date',
+            ]);
+
+            $count = $this->festivalService->getCustomerCountByDateRange(
+                $request->from_date,
+                $request->to_date
+            );
+
+            return response()->json(['count' => $count]);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     }
 }

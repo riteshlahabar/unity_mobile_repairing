@@ -43,13 +43,21 @@
                                                 onclick="selectTitle(event, 'In Progress')">In Progress</a>    
                                             <a class="dropdown-item" href="#"
                                                 onclick="selectTitle(event, 'Device Received')">Device Received</a>
+<<<<<<< HEAD
                                             <a class="dropdown-item" href="#"
+=======
+                                                <a class="dropdown-item" href="#"
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
                                                 onclick="selectTitle(event, 'Call Info')">Call Info</a>
                                             <a class="dropdown-item" href="#"
                                                 onclick="selectTitle(event, 'Approval Pending')">Approval Pending</a>
                                             <a class="dropdown-item" href="#"
                                                 onclick="selectTitle(event, 'Customer Approved')">Customer Approved</a>
+<<<<<<< HEAD
                                             <a class="dropdown-item" href="#"
+=======
+                                                <a class="dropdown-item" href="#"
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
                                                 onclick="selectTitle(event, 'Not Okay Return')">Not Okay Return</a>
                                             <a class="dropdown-item" href="#"
                                                 onclick="selectTitle(event, 'Return')">Return</a>
@@ -83,6 +91,18 @@
                                 </div>
                             </div>
                         </div>
+<<<<<<< HEAD
+=======
+
+                        <div class="text-end">
+                            <button type="submit" class="btn btn-primary" id="submitBtn">
+                                <i class="iconoir-check-circle me-1"></i>Save Notification
+                            </button>                            
+                            <button type="button" class="btn btn-secondary" onclick="resetForm()">
+                                <i class="iconoir-restart me-1"></i>Reset
+                            </button>
+                        </div>
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
                     </form>
                 </div>
             </div>

@@ -35,7 +35,10 @@ class JobSheetRepository implements JobSheetRepositoryInterface
                   ->orWhere('problem_description', 'LIKE', "%{$search}%")
                   ->orWhere('imei', 'LIKE', "%{$search}%")
                   ->orWhere('technician', 'LIKE', "%{$search}%")
+<<<<<<< HEAD
                   ->orWhere('status', 'LIKE', "%{$search}%")
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
                   ->orWhereHas('customer', function($subQ) use ($search) {
                       $subQ->where('full_name', 'LIKE', "%{$search}%")
                            ->orWhere('customer_id', 'LIKE', "%{$search}%")

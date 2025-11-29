@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const submitButton = form.querySelector('button[type="submit"]');
             submitButton.disabled = true;
 
+<<<<<<< HEAD
             // ✅ PATCH ONLY: Safe CSRF token extraction
             const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || 
                               form.querySelector('input[name="_token"]')?.value;
@@ -37,6 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
             try {
                 const response = await fetch(route, {
                     method: 'POST',

@@ -127,6 +127,7 @@ function selectOptionMobile(event, field, value) {
     if (typeof checkMobileTabValidation === 'function') checkMobileTabValidation();
 }
 
+<<<<<<< HEAD
 /* ----------------------------
   Search functionality (NEW - SIMPLIFIED)
   ----------------------------*/
@@ -171,12 +172,73 @@ function attachSearchListeners(dropdownId, field) {
   Dropdown item creation & editing (UNCHANGED)
   ----------------------------*/
 
+=======
+
+/* ----------------------------
+  Search: deterministic & debuggable
+  ----------------------------*/
+
+// Create the search input and attach it to the specific dropdown element
+// This returns the wrapper <li> so populateDropdown can append it.
+function createDropdownSearchInputFor(dropdown) {
+    const li = document.createElement('li');
+    li.className = 'px-2 dropdown-search-container';
+
+    const input = document.createElement('input');
+    // predictable id so you can inspect: "<dropdownId>-search"
+    input.type = 'text';
+    input.className = 'form-control form-control-sm mb-2 dropdown-search';
+    input.placeholder = 'Search...';
+
+    // Add debug line and call filterDropdown with the dropdown itself
+    input.addEventListener('input', (ev) => {
+        const term = input.value;
+        console.debug(`[DEBUG] Search input "${input.id}" input event. dropdown="${dropdown ? dropdown.id : 'unknown'}" term="${term}"`);
+        filterDropdown(dropdown, term);
+    });
+
+    // Make ID predictable (if dropdown has id)
+    if (dropdown && dropdown.id) {
+        input.id = `${dropdown.id}-search`;
+    }
+
+    li.appendChild(input);
+    return li;
+}
+
+// Filter function uses data-value on li.choice-item for robust comparisons
+function filterDropdown(dropdown, searchTerm) {
+    if (!dropdown) {
+        console.warn('[DEBUG] filterDropdown called with null dropdown');
+        return;
+    }
+    const term = (searchTerm || '').trim().toLowerCase();
+
+    // select only choice items (we add this class when creating items)
+    const choices = dropdown.querySelectorAll('li.choice-item');
+    // keep search box and add-new/divider visible (they are not choice-item)
+    console.debug(`[DEBUG] filterDropdown("${dropdown.id}") term="${term}" items=${choices.length}`);
+
+    choices.forEach(li => {
+        const value = li.getAttribute('data-value') || '';
+        const show = term === '' ? true : value.indexOf(term) !== -1;
+        li.style.display = show ? '' : 'none';
+    });
+}
+
+/* ----------------------------
+  Dropdown item creation & editing
+  ----------------------------*/
+
+// normalize server item => display text
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 function getDisplayText(item) {
     if (typeof item === 'string') return item;
     if (!item) return '';
     return item.name || item.company || item.model || item.color || item.series || String(item);
 }
 
+<<<<<<< HEAD
 function createDropdownItem(rawItem, field, onEditSave) {
     const item = document.createElement('li');
     item.className = 'choice-item dropdown-item';
@@ -196,31 +258,64 @@ function createDropdownItem(rawItem, field, onEditSave) {
     span.textContent = displayText;
     span.style.flex = '1';
 
+=======
+// Create a dropdown item with inline edit functionality.
+// Note: we add class "choice-item" and data-value (lowercase) for search.
+function createDropdownItem(rawItem, field, onEditSave) {
+    const item = document.createElement('li');
+    item.className = 'dropdown-item d-flex justify-content-between align-items-center choice-item';
+    item.role = 'button';
+
+    const displayText = getDisplayText(rawItem);
+    const span = document.createElement('span');
+    span.className = 'dropdown-text';
+    span.textContent = displayText;
+
+    // Save a lowercase copy for fast search comparisons
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     item.setAttribute('data-value', (displayText || '').toLowerCase());
 
     const editIcon = document.createElement('i');
     editIcon.className = 'las la-edit edit-icon';
     editIcon.style.cursor = 'pointer';
+<<<<<<< HEAD
     editIcon.style.marginLeft = '0.5rem';
     editIcon.style.flexShrink = '0';
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     editIcon.setAttribute('tabindex', '0');
     editIcon.setAttribute('role', 'button');
     editIcon.title = 'Edit';
 
+<<<<<<< HEAD
     editIcon.addEventListener('click', (e) => {
         e.stopPropagation();
         if (item.classList.contains('editing')) {
+=======
+    // Stop propagation for edit icon
+    editIcon.addEventListener('click', (e) => {
+        e.stopPropagation();
+        // if editing - trigger save path; else enter edit mode
+        if (item.classList.contains('editing')) {
+            // save
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
             saveEditFlow(item, field, displayText, onEditSave);
         } else {
             enterEditFlow(item, field, displayText, onEditSave);
         }
     });
 
+<<<<<<< HEAD
     container.appendChild(span);
     container.appendChild(editIcon);
     item.appendChild(container);
 
     // Click to select - use span.textContent to get CURRENT value (after edits)
+=======
+    item.appendChild(span);
+    item.appendChild(editIcon);
+
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     item.addEventListener('click', (e) => {
         if (item.classList.contains('editing')) return;
         selectOptionMobile(e, field, span.textContent);
@@ -229,13 +324,19 @@ function createDropdownItem(rawItem, field, onEditSave) {
     return item;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 /* Enter edit mode */
 function enterEditFlow(item, field, oldValueString, onEditSave) {
     if (!item) return;
     item.classList.add('editing');
 
+<<<<<<< HEAD
     const container = item.querySelector('div');
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     const span = item.querySelector('.dropdown-text');
     const editIcon = item.querySelector('.edit-icon');
 
@@ -243,8 +344,13 @@ function enterEditFlow(item, field, oldValueString, onEditSave) {
     input.type = 'text';
     input.className = 'form-control form-control-sm dropdown-edit-input';
     input.value = (span && span.textContent) ? span.textContent : '';
+<<<<<<< HEAD
     input.style.flex = '1';
 
+=======
+
+    // Enter -> save, Escape -> cancel
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     input.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
             saveEditFlow(item, field, oldValueString, onEditSave);
@@ -253,8 +359,13 @@ function enterEditFlow(item, field, oldValueString, onEditSave) {
         }
     });
 
+<<<<<<< HEAD
     if (span) container.replaceChild(input, span);
     else container.insertBefore(input, editIcon);
+=======
+    if (span) item.replaceChild(input, span);
+    else item.insertBefore(input, editIcon);
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 
     if (editIcon) {
         editIcon.className = 'las la-check edit-icon';
@@ -265,6 +376,7 @@ function enterEditFlow(item, field, oldValueString, onEditSave) {
     input.select();
 }
 
+<<<<<<< HEAD
 
 /* Cancel edit (restore old display) */
 function cancelEditFlow(item, oldValueString) {
@@ -280,15 +392,33 @@ function cancelEditFlow(item, oldValueString) {
     
     if (currentInput) container.replaceChild(restoredSpan, currentInput);
     
+=======
+/* Cancel edit (restore old display) */
+function cancelEditFlow(item, oldValueString) {
+    if (!item) return;
+    const editIcon = item.querySelector('.edit-icon');
+    const currentInput = item.querySelector('input.dropdown-edit-input');
+    const restoredSpan = document.createElement('span');
+    restoredSpan.className = 'dropdown-text';
+    restoredSpan.textContent = oldValueString || '';
+    if (currentInput) item.replaceChild(restoredSpan, currentInput);
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
     item.classList.remove('editing');
     if (editIcon) {
         editIcon.className = 'las la-edit edit-icon';
         editIcon.style.cursor = 'pointer';
     }
+<<<<<<< HEAD
     item.setAttribute('data-value', (oldValueString || '').toLowerCase());
 }
 
 
+=======
+    // Update data-value attribute back to oldValueString
+    item.setAttribute('data-value', (oldValueString || '').toLowerCase());
+}
+
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 /* Save edit flow */
 function saveEditFlow(item, field, oldValueString, onEditSave) {
     if (!item) return;
@@ -319,16 +449,22 @@ function saveEditFlow(item, field, oldValueString, onEditSave) {
                 const newSpan = document.createElement('span');
                 newSpan.className = 'dropdown-text';
                 newSpan.textContent = finalValue;
+<<<<<<< HEAD
                 newSpan.style.flex = '1';
                 
                 const currentInput = item.querySelector('input.dropdown-edit-input');
                 if (currentInput) item.querySelector('div').replaceChild(newSpan, currentInput);
                 
+=======
+                const currentInput = item.querySelector('input.dropdown-edit-input');
+                if (currentInput) item.replaceChild(newSpan, currentInput);
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
                 item.classList.remove('editing');
                 if (editIcon) {
                     editIcon.className = 'las la-edit edit-icon';
                     editIcon.style.cursor = 'pointer';
                 }
+<<<<<<< HEAD
                 
                 // Update data-value attribute for search
                 item.setAttribute('data-value', (finalValue || '').toLowerCase());
@@ -353,11 +489,20 @@ function saveEditFlow(item, field, oldValueString, onEditSave) {
                 if (message) alert(message);
             } else {
                 alert(message || 'Failed to update. Please try again.');
+=======
+                // update data-value attribute for search
+                item.setAttribute('data-value', (finalValue || '').toLowerCase());
+                if (message) alert(message);
+            } else {
+                alert(message || 'Failed to update. Please try again.');
+                // keep focus on input
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
                 const stillInput = item.querySelector('input.dropdown-edit-input');
                 if (stillInput) stillInput.focus();
             }
         });
     } else {
+<<<<<<< HEAD
         const newSpan = document.createElement('span');
         newSpan.className = 'dropdown-text';
         newSpan.textContent = newValue;
@@ -366,20 +511,36 @@ function saveEditFlow(item, field, oldValueString, onEditSave) {
         const currentInput = item.querySelector('input.dropdown-edit-input');
         if (currentInput) item.querySelector('div').replaceChild(newSpan, currentInput);
         
+=======
+        // no server call
+        const newSpan = document.createElement('span');
+        newSpan.className = 'dropdown-text';
+        newSpan.textContent = newValue;
+        const currentInput = item.querySelector('input.dropdown-edit-input');
+        if (currentInput) item.replaceChild(newSpan, currentInput);
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
         item.classList.remove('editing');
         if (editIcon) {
             editIcon.className = 'las la-edit edit-icon';
             editIcon.style.cursor = 'pointer';
         }
+<<<<<<< HEAD
         
+=======
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
         item.setAttribute('data-value', (newValue || '').toLowerCase());
         alert('Updated successfully!');
     }
 }
 
+<<<<<<< HEAD
 
 /* ----------------------------
   AJAX saving (UNCHANGED)
+=======
+/* ----------------------------
+  AJAX saving (keeps your original API shape, improved parsing)
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
   ----------------------------*/
 function saveEditedDropdownValue(type, oldValue, newValue, done) {
     let url, body;
@@ -440,7 +601,11 @@ function saveEditedDropdownValue(type, oldValue, newValue, done) {
 }
 
 /* ----------------------------
+<<<<<<< HEAD
   Loaders & populate (MODIFIED FOR SEARCH)
+=======
+  Loaders & populate (search input wired to correct dropdown)
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
   ----------------------------*/
 
 function loadCompanies() {
@@ -469,6 +634,7 @@ function loadSeries() {
     .then(response => response.json())
     .then(data => populateDropdown('seriesDropdown', 'Series', data, 'series'))
     .catch(err => console.error('Error loading series:', err));
+<<<<<<< HEAD
 }
 
 // Populate dropdown with search capability
@@ -582,4 +748,122 @@ function uploadBulkMaster() {
         feedback.classList.add('alert-danger');
     });
 }
+=======
+}
+
+// Populate dropdown: attach the search input (for this dropdown) and items
+function populateDropdown(dropdownId, displayName, items, field) {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) {
+        console.warn(`[DEBUG] populateDropdown: element not found: ${dropdownId}`);
+        return;
+    }
+    console.debug(`[DEBUG] populateDropdown("${dropdownId}") items length:`, Array.isArray(items) ? items.length : 'not-array');
+
+    dropdown.innerHTML = '';
+
+    // Create search input bound to this dropdown
+    const searchLi = createDropdownSearchInputFor(dropdown);
+    dropdown.appendChild(searchLi);
+
+    // Items: create choice-item LIs with data-value for filtering
+    if (Array.isArray(items)) {
+        items.forEach(rawItem => {
+            const itemNode = createDropdownItem(rawItem, field, (newVal, done) => {
+                const oldValueString = getDisplayText(rawItem);
+                // call existing saveEditedDropdownValue
+                saveEditedDropdownValue(field, oldValueString, newVal, done);
+            });
+            dropdown.appendChild(itemNode);
+        });
+    } else {
+        console.warn(`[DEBUG] populateDropdown: items not an array for ${dropdownId}`, items);
+    }
+
+    const divider = document.createElement('li');
+    divider.className = 'dropdown-divider';
+    dropdown.appendChild(divider);
+
+    const addNew = document.createElement('li');
+    addNew.className = 'dropdown-item text-primary';
+    addNew.setAttribute('role', 'button');
+    addNew.innerHTML = `<i class="iconoir-plus me-2"></i>Add New ${displayName}`;
+    addNew.onclick = () => openAddMasterModal(displayName);
+    dropdown.appendChild(addNew);
+
+    // debug: ensure search input exists and is focusable
+    const searchInput = dropdown.querySelector('.dropdown-search');
+    console.debug(`[DEBUG] populateDropdown("${dropdownId}") search input id:`, searchInput ? searchInput.id : 'not-found');
+}
+
+const searchInput = dropdown.querySelector('.dropdown-search');
+if (searchInput) {
+    console.log(`[TEST] Search input found for ${dropdownId}:`, searchInput);
+    // Force-add another listener to confirm events fire
+    searchInput.addEventListener('input', (e) => {
+        console.log('[TEST] Manual test listener fired, value:', e.target.value);
+    });
+} else {
+    console.error(`[TEST] No search input found in ${dropdownId}`);
+}
+
+function uploadBulkMaster() {
+    const fileInput = document.getElementById('bulkMasterFile');
+    const feedback = document.getElementById('bulkMasterUploadFeedback');
+    feedback.classList.add('d-none');
+    feedback.classList.remove('alert-success', 'alert-danger');
+    feedback.textContent = '';
+
+    // Validate file
+    if (!fileInput || !fileInput.files.length) {
+        feedback.textContent = 'Please select an Excel file.';
+        feedback.classList.remove('d-none');
+        feedback.classList.add('alert-danger');
+        return;
+    }
+    const file = fileInput.files[0];
+    if (!file.name.match(/\.(xlsx|xls)$/i)) {
+        feedback.textContent = 'File must be .xlsx or .xls';
+        feedback.classList.remove('d-none');
+        feedback.classList.add('alert-danger');
+        return;
+    }
+
+    // Prepare data
+    let formData = new FormData();
+    formData.append('file', file);
+
+    // Send via AJAX to Laravel route (define this route in web.php/controller)
+    fetch("{{ route('mobile.bulkMasterUpload') }}", {
+        method: 'POST',
+        headers: {
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.success) {
+            feedback.textContent = data.message || 'File uploaded and data imported successfully.';
+            feedback.classList.remove('d-none', 'alert-danger');
+            feedback.classList.add('alert-success');
+            // Optionally reload dropdowns
+            loadCompanies();
+            loadModels();
+            loadColors();
+            loadSeries();
+        } else {
+            feedback.textContent = data.message || 'Upload failed or file format invalid.';
+            feedback.classList.remove('d-none', 'alert-success');
+            feedback.classList.add('alert-danger');
+        }
+    })
+    .catch(() => {
+        feedback.textContent = 'Network or server error during file upload.';
+        feedback.classList.remove('d-none', 'alert-success');
+        feedback.classList.add('alert-danger');
+    });
+}
+
+>>>>>>> 0963cebdc0528a837022693382951a181cdac698
 </script>
